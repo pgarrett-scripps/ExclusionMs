@@ -1,9 +1,71 @@
+import ast
 import random
 import sys
 from dataclasses import dataclass, asdict
 from typing import Union
 
 from .exceptions import IncorrectToleranceException
+
+
+def parse_float_str(val: str) -> Union[float, None]:
+    if type(val) == str:
+        if val == '':
+            val = None
+        elif str.lower(val) == 'none':
+            val = None
+        else:
+            try:
+                val = float(val)
+            except ValueError:
+                pass
+    if type(val) != float and val is not None:
+        raise IncorrectToleranceException(f'val: {val} cannot be parsed into float.')
+    return val
+
+
+def parse_int_str(val: str) -> Union[int, None]:
+    if type(val) == str:
+        if val == '':
+            val = None
+        elif str.lower(val) == 'none':
+            val = None
+        else:
+            try:
+                val = int(val)
+            except ValueError:
+                pass
+    if type(val) != int and val is not None:
+        raise IncorrectToleranceException(f'val: {val} cannot be parsed into int.')
+    return val
+
+
+def parse_str_str(val: str) -> Union[str, None]:
+    if type(val) == str:
+        if val == '':
+            val = None
+        elif str.lower(val) == 'none':
+            val = None
+    if type(val) != str and val is not None:
+        raise IncorrectToleranceException(f'val: {val} cannot be parsed into str.')
+    return val
+
+
+def parse_bool_str(val: str) -> Union[bool, None]:
+
+    if type(val) == str:
+        if val == '':
+            val = None
+        elif str.lower(val) == 'none':
+            val = None
+        elif str.lower(val) == 'true':
+            val = True
+        elif str.lower(val) == 'false':
+            val = False
+
+    if type(val) != bool and val is not None:
+        raise IncorrectToleranceException(f'val: {val} cannot be parsed into bool.')
+
+    return val
 
 
 @dataclass
@@ -102,6 +164,34 @@ class ExclusionInterval:
             return False
         return True
 
+    @staticmethod
+    def from_str(serialized_interval: str):
+        res = ast.literal_eval(serialized_interval)
+
+        id = parse_str_str(res.get('id'))
+        charge = parse_int_str(res.get('charge'))
+        min_mass = parse_float_str(res.get('min_mass'))
+        max_mass = parse_float_str(res.get('max_mass'))
+        min_rt = parse_float_str(res.get('min_rt'))
+        max_rt = parse_float_str(res.get('max_rt'))
+        min_ook0 = parse_float_str(res.get('min_ook0'))
+        max_ook0 = parse_float_str(res.get('max_ook0'))
+        min_intensity = parse_float_str(res.get('min_intensity'))
+        max_intensity = parse_float_str(res.get('max_intensity'))
+
+        exclusion_interval = ExclusionInterval(id=id,
+                                               charge=charge,
+                                               min_mass=min_mass,
+                                               max_mass=max_mass,
+                                               min_rt=min_rt,
+                                               max_rt=max_rt,
+                                               min_ook0=min_ook0,
+                                               max_ook0=max_ook0,
+                                               min_intensity=min_intensity,
+                                               max_intensity=max_intensity
+                                               )
+        return exclusion_interval
+
 
 @dataclass()
 class ExclusionPoint:
@@ -141,6 +231,21 @@ class ExclusionPoint:
         intensity = random.uniform(min_intensity, max_intensity)
         return ExclusionPoint(charge=charge, mass=mass, rt=rt, ook0=ook0, intensity=intensity)
 
+    @staticmethod
+    def from_str(serialized_point: str):
+        res = ast.literal_eval(serialized_point)
+        charge = parse_int_str(res.get('charge'))
+        mass = parse_float_str(res.get('mass'))
+        rt = parse_float_str(res.get('rt'))
+        ook0 = parse_float_str(res.get('ook0'))
+        intensity = parse_float_str(res.get('intensity'))
+        exclusion_point = ExclusionPoint(charge=charge,
+                                         mass=mass,
+                                         rt=rt,
+                                         ook0=ook0,
+                                         intensity=intensity)
+        return exclusion_point
+
 
 @dataclass
 class DynamicExclusionTolerance:
@@ -154,115 +259,30 @@ class DynamicExclusionTolerance:
         return {k: str(v) for k, v in asdict(self).items()}
 
     @staticmethod
-    def parse_exact_charge_str(exact_charge: str) -> bool:
-        if type(exact_charge) == str:
-            if str.lower(exact_charge) == 'true':
-                exact_charge = True
-            elif str.lower(exact_charge) == 'false':
-                exact_charge = False
-            else:
-                raise IncorrectToleranceException(
-                    f'exact_charge: {exact_charge} is of the wrong type: {type(exact_charge)}')
-        elif type(exact_charge) != bool:
-            raise IncorrectToleranceException(
-                f'exact_charge: {exact_charge} is of the wrong type: {type(exact_charge)}')
-
-        return exact_charge
-
-    @staticmethod
-    def parse_mass_tolerance_str(mass: str) -> Union[float, None]:
-        if type(mass) == str:
-            if mass == '':
-                mass = None
-            elif str.lower(mass) == 'none':
-                mass = None
-            else:
-                try:
-                    mass = float(mass)
-                except ValueError:
-                    raise IncorrectToleranceException(
-                        f'mass tolerance: {mass} cannot be parsed into float.')
-        elif type(mass) != float and type(mass) != int and mass is not None:
-            raise IncorrectToleranceException(
-                f'mass tolerance: {mass} cannot be parsed into float.')
-
-        return mass
-
-    @staticmethod
-    def parse_rt_tolerance_str(rt: str) -> Union[float, None]:
-        if type(rt) == str:
-            if rt == '':
-                rt = None
-            elif str.lower(rt) == 'none':
-                rt = None
-            else:
-                try:
-                    rt = float(rt)
-                except ValueError:
-                    raise IncorrectToleranceException(
-                        f'rt tolerance: {rt} cannot be parsed into float.')
-        elif type(rt) != float and type(rt) != int and rt is not None:
-            raise IncorrectToleranceException(
-                f'rt tolerance: {rt} cannot be parsed into float.')
-        return rt
-
-    @staticmethod
-    def parse_ook0_tolerance_str(ook0: str) -> Union[float, None]:
-        if type(ook0) == str:
-            if ook0 == '':
-                ook0 = None
-            elif str.lower(ook0) == 'none':
-                ook0 = None
-            else:
-                try:
-                    ook0 = float(ook0)
-                except ValueError:
-                    raise IncorrectToleranceException(
-                        f'ook0 tolerance: {ook0} cannot be parsed into float.')
-        elif type(ook0) != float and type(ook0) != int and ook0 is not None:
-            raise IncorrectToleranceException(
-                f'ook0 tolerance: {ook0} cannot be parsed into float.')
-        return ook0
-
-    @staticmethod
-    def parse_intensity_tolerance_str(intensity: str) -> Union[float, None]:
-        if type(intensity) == str:
-            if intensity == '':
-                intensity = None
-            elif str.lower(intensity) == 'none':
-                intensity = None
-            else:
-                try:
-                    intensity = float(intensity)
-                except ValueError:
-                    raise IncorrectToleranceException(
-                        f'intensity tolerance: {intensity} cannot be parsed into float.')
-        elif type(intensity) != float and type(intensity) != int and intensity is not None:
-            raise IncorrectToleranceException(
-                f'intensity tolerance: {intensity} cannot be parsed into float.')
-        return intensity
-
-    @staticmethod
     def from_tolerance_dict(tolerance_dict: dict) -> 'DynamicExclusionTolerance':
-
+        exact_charge = parse_bool_str(tolerance_dict.get('exact_charge'))
+        if exact_charge is None:
+            raise ValueError(f'exact charge cannot be None!')
         return DynamicExclusionTolerance(
-            exact_charge=DynamicExclusionTolerance.parse_exact_charge_str(tolerance_dict.get('exact_charge')),
-            mass_tolerance=DynamicExclusionTolerance.parse_mass_tolerance_str(tolerance_dict.get('mass')),
-            rt_tolerance=DynamicExclusionTolerance.parse_rt_tolerance_str(tolerance_dict.get('rt')),
-            ook0_tolerance=DynamicExclusionTolerance.parse_ook0_tolerance_str(tolerance_dict.get('ook0')),
-            intensity_tolerance=DynamicExclusionTolerance.parse_intensity_tolerance_str(tolerance_dict.get('intensity'))
+            exact_charge=exact_charge,
+            mass_tolerance=parse_float_str(tolerance_dict.get('mass')),
+            rt_tolerance=parse_float_str(tolerance_dict.get('rt')),
+            ook0_tolerance=parse_float_str(tolerance_dict.get('ook0')),
+            intensity_tolerance=parse_float_str(tolerance_dict.get('intensity'))
         )
 
     @staticmethod
     def from_strings(exact_charge: str, mass_tolerance: str, rt_tolerance: str, ook0_tolerance: str,
                      intensity_tolerance: str) -> 'DynamicExclusionTolerance':
-
+        exact_charge = parse_bool_str(exact_charge)
+        if exact_charge is None:
+            raise ValueError(f'exact charge cannot be None!')
         return DynamicExclusionTolerance(
-            exact_charge=DynamicExclusionTolerance.parse_exact_charge_str(exact_charge),
-            mass_tolerance=DynamicExclusionTolerance.parse_mass_tolerance_str(mass_tolerance),
-            rt_tolerance=DynamicExclusionTolerance.parse_rt_tolerance_str(rt_tolerance),
-            ook0_tolerance=DynamicExclusionTolerance.parse_ook0_tolerance_str(ook0_tolerance),
-            intensity_tolerance=DynamicExclusionTolerance.parse_intensity_tolerance_str(intensity_tolerance)
+            exact_charge=exact_charge,
+            mass_tolerance=parse_float_str(mass_tolerance),
+            rt_tolerance=parse_float_str(rt_tolerance),
+            ook0_tolerance=parse_float_str(ook0_tolerance),
+            intensity_tolerance=parse_float_str(intensity_tolerance)
         )
 
     def calculate_mass_bounds(self, mass: Union[float, None]):
