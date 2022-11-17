@@ -2,7 +2,7 @@ import ast
 import random
 import sys
 from dataclasses import dataclass, asdict
-from typing import Union
+from typing import Union, Dict, List
 
 from .exceptions import IncorrectToleranceException
 
@@ -18,6 +18,10 @@ def parse_float_str(val: str) -> Union[float, None]:
                 val = float(val)
             except ValueError:
                 pass
+
+    elif type(val) == int:
+        val = float(val)
+
     if type(val) != float and val is not None:
         raise IncorrectToleranceException(f'val: {val} cannot be parsed into float.')
     return val
@@ -120,6 +124,37 @@ class ExclusionInterval:
 
         return self
 
+    def convert_to_none(self):
+        """
+        If any bounds are None, set them to either min/max float
+        """
+
+        if self.min_mass == sys.float_info.min:
+            self.min_mass = None
+
+        if self.max_mass == sys.float_info.max:
+            self.max_mass = None
+
+        if self.min_rt == sys.float_info.min:
+            self.min_rt = None
+
+        if self.max_rt == sys.float_info.max:
+            self.max_rt = None
+
+        if self.min_ook0 == sys.float_info.min:
+            self.min_ook0 = None
+
+        if self.max_ook0 == sys.float_info.max:
+            self.max_ook0 = None
+
+        if self.min_intensity == sys.float_info.min:
+            self.min_intensity = None
+
+        if self.max_intensity == sys.float_info.max:
+            self.max_intensity = None
+
+        return self
+
     def is_enveloped_by(self, other: 'ExclusionInterval'):
 
         if other.charge is not None and self.charge != other.charge:  # data must have correct charge
@@ -167,6 +202,10 @@ class ExclusionInterval:
     @staticmethod
     def from_str(serialized_interval: str):
         res = ast.literal_eval(serialized_interval)
+        return ExclusionInterval.from_dict(res)
+
+    @staticmethod
+    def from_dict(res: Dict):
 
         id = parse_str_str(res.get('id'))
         charge = parse_int_str(res.get('charge'))
@@ -191,6 +230,8 @@ class ExclusionInterval:
                                                max_intensity=max_intensity
                                                )
         return exclusion_interval
+
+
 
 
 @dataclass()
@@ -245,6 +286,9 @@ class ExclusionPoint:
                                          ook0=ook0,
                                          intensity=intensity)
         return exclusion_point
+
+    def dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}
 
 
 @dataclass

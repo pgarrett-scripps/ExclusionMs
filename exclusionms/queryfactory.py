@@ -50,17 +50,25 @@ def make_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: Exc
     return add_interval_api_str
 
 
-def make_exclusion_points_query(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint]):
-    charges_sub_query = ''.join([f'&charge={point.charge}' for point in exclusion_points])
-    masses_sub_query = ''.join([f'&mass={point.mass}' for point in exclusion_points])
-    rts_sub_query = ''.join([f'&rt={point.rt}' for point in exclusion_points])
-    ook0s_sub_query = ''.join([f'&ook0={point.ook0}' for point in exclusion_points])
-    intensities_sub_query = ''.join([f'&intensity={point.intensity}' for point in exclusion_points])
+def make_exclusion_point_query(exclusion_api_ip: str, exclusion_point: ExclusionPoint):
+    interval_query = ''
+    if exclusion_point.charge:
+        interval_query += f'&charge={exclusion_point.charge}'
+    if exclusion_point.mass:
+        interval_query += f'&mass={exclusion_point.mass}'
+    if exclusion_point.rt:
+        interval_query += f'&rt={exclusion_point.rt}'
+    if exclusion_point.ook0:
+        interval_query += f'&ook0={exclusion_point.ook0}'
+    if exclusion_point.intensity:
+        interval_query += f'&intensity={exclusion_point.intensity}'
 
-    exclusion_points_query = \
-        charges_sub_query + masses_sub_query + rts_sub_query + ook0s_sub_query + intensities_sub_query
-    exclusion_points_query = '?' + exclusion_points_query[1:]
+    if interval_query:
+        interval_query = '?' + interval_query[1:]
 
-    query_points_api_str = f'{exclusion_api_ip}/exclusionms/points{exclusion_points_query}'
+    return f'{exclusion_api_ip}/exclusionms/point{interval_query}'
 
+
+def make_exclusion_points_query(exclusion_api_ip: str):
+    query_points_api_str = f'{exclusion_api_ip}/exclusionms/excluded_points'
     return query_points_api_str

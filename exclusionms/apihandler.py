@@ -6,7 +6,7 @@ import requests
 from .components import ExclusionPoint, ExclusionInterval
 from .exceptions import UnexpectedStatusCodeException
 from .queryfactory import make_save_query, make_load_query, make_stats_query, \
-    make_exclusion_interval_query, make_clear_query, make_exclusion_points_query
+    make_exclusion_interval_query, make_clear_query, make_exclusion_points_query, make_exclusion_point_query
 
 
 def clear_active_exclusion_list(exclusion_api_ip: str, timeout=None):
@@ -45,17 +45,16 @@ def get_exclusion_list_files(exclusion_api_ip: str, timeout=None) -> List[str]:
         return json.loads(response.content)['files']
 
 
-def add_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> None:
-    query = make_exclusion_interval_query(exclusion_api_ip=exclusion_api_ip,
-                                          exclusion_interval=exclusion_interval)
+def add_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> None:
+    query = f'{exclusion_api_ip}/exclusionms/interval'
 
-    response = requests.post(query, timeout=timeout)
+    response = requests.post(query, json=exclusion_interval.dict(), timeout=timeout)
 
     if response.status_code != 200:
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
 
-def get_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[Dict]:
+def get_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[ExclusionInterval]:
     query = make_exclusion_interval_query(exclusion_api_ip=exclusion_api_ip,
                                           exclusion_interval=exclusion_interval)
 
@@ -64,36 +63,42 @@ def get_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: Excl
     if response.status_code != 200:
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
-    return json.loads(response.content)
+    response_dicts = json.loads(response.content)
+    exclusion_intervals = [ExclusionInterval(**d) for d in response_dicts]
+    return exclusion_intervals
 
 
-def delete_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> None:
-    query = make_exclusion_interval_query(exclusion_api_ip=exclusion_api_ip,
-                                          exclusion_interval=exclusion_interval)
+def delete_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[ExclusionInterval]:
+    query = f'{exclusion_api_ip}/exclusionms/interval'
 
-    response = requests.delete(query, timeout=timeout)
+    response = requests.delete(query, json=exclusion_interval.dict(), timeout=timeout)
 
     if response.status_code != 200:
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
+    response_dicts = json.loads(response.content)
+    exclusion_intervals = [ExclusionInterval(**d) for d in response_dicts]
+    return exclusion_intervals
 
-def get_excluded_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None, chunk_size=100) -> List[bool]:
 
-    def divide_chunks(l, n):
-        for i in range(0, len(l), n):
-            yield l[i:i + n]
+def get_intervals_from_point(exclusion_api_ip: str, exclusion_point: ExclusionPoint, timeout=None) -> List[ExclusionInterval]:
+    query = make_exclusion_point_query(exclusion_api_ip=exclusion_api_ip, exclusion_point=exclusion_point)
+    response = requests.get(query, timeout=timeout)
 
-    exclusion_points_chunks = divide_chunks(exclusion_points, chunk_size)
-    combined_response = []
-    for partial_exclusion_points in exclusion_points_chunks:
-        query = make_exclusion_points_query(exclusion_api_ip=exclusion_api_ip,
-                                            exclusion_points=partial_exclusion_points)
+    if response.status_code != 200:
+        raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
-        response = requests.get(query, timeout=timeout)
+    response_dicts = json.loads(response.content)
+    exclusion_intervals = [ExclusionInterval(**d) for d in response_dicts]
+    return exclusion_intervals
 
-        if response.status_code != 200:
-            raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
-        combined_response.extend(json.loads(response.content))
+def get_excluded_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None) -> List[bool]:
+    query = make_exclusion_points_query(exclusion_api_ip=exclusion_api_ip)
+    response = requests.post(query, json=[point.dict() for point in exclusion_points], timeout=timeout)
 
-    return combined_response
+    if response.status_code != 200:
+        raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
+
+    return json.loads(response.content)
+

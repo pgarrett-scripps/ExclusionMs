@@ -80,17 +80,18 @@ class MassIntervalTree(ExclusionList):
         self.interval_tree.add(mass_interval)
         self.id_dict.setdefault(ex_interval.id, []).append(mass_interval)
 
-    def remove(self, ex_interval: ExclusionInterval):
+    def remove(self, ex_interval: ExclusionInterval) -> list[ExclusionInterval]:
         mass_intervals = self._get_interval(ex_interval)
         if mass_intervals is None:
-            return 0
+            return []
+
         for mass_interval in set(mass_intervals):
             self.interval_tree.remove(mass_interval)
 
         for mass_interval in mass_intervals:
             self.id_dict[mass_interval.data.id].remove(mass_interval)
 
-        return len(mass_intervals)
+        return [mass_interval.data for mass_interval in mass_intervals]
 
     def _get_interval(self, ex_interval: ExclusionInterval) -> List[Interval]:
         if ex_interval.id is None:
