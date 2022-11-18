@@ -1,6 +1,4 @@
-from typing import List
-
-from .components import ExclusionInterval, ExclusionPoint
+from .components import ExclusionInterval, ExclusionPoint, ExclusionIntervalMsg, ExclusionPointMsg
 
 
 def make_clear_query(exclusion_api_ip: str):
@@ -21,26 +19,19 @@ def make_stats_query(exclusion_api_ip: str):
 
 def make_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: ExclusionInterval) -> str:
     interval_query = ''
-    if exclusion_interval.id:
-        interval_query += f'&interval_id={exclusion_interval.id}'
-    if exclusion_interval.charge:
-        interval_query += f'&charge={exclusion_interval.charge}'
-    if exclusion_interval.min_mass:
-        interval_query += f'&min_mass={exclusion_interval.min_mass}'
-    if exclusion_interval.max_mass:
-        interval_query += f'&max_mass={exclusion_interval.max_mass}'
-    if exclusion_interval.min_rt:
-        interval_query += f'&min_rt={exclusion_interval.min_rt}'
-    if exclusion_interval.max_rt:
-        interval_query += f'&max_rt={exclusion_interval.max_rt}'
-    if exclusion_interval.min_ook0:
-        interval_query += f'&min_ook0={exclusion_interval.min_ook0}'
-    if exclusion_interval.max_ook0:
-        interval_query += f'&max_ook0={exclusion_interval.max_ook0}'
-    if exclusion_interval.min_intensity:
-        interval_query += f'&min_intensity={exclusion_interval.min_intensity}'
-    if exclusion_interval.max_intensity:
-        interval_query += f'&max_intensity={exclusion_interval.max_intensity}'
+
+    exclusion_interval_msg = ExclusionIntervalMsg.from_exclusion_interval(exclusion_interval)
+
+    interval_query += f'&interval_id={exclusion_interval_msg.interval_id}'
+    interval_query += f'&charge={exclusion_interval_msg.charge}'
+    interval_query += f'&min_mass={exclusion_interval_msg.min_mass}'
+    interval_query += f'&max_mass={exclusion_interval_msg.max_mass}'
+    interval_query += f'&min_rt={exclusion_interval_msg.min_rt}'
+    interval_query += f'&max_rt={exclusion_interval_msg.max_rt}'
+    interval_query += f'&min_ook0={exclusion_interval_msg.min_ook0}'
+    interval_query += f'&max_ook0={exclusion_interval_msg.max_ook0}'
+    interval_query += f'&min_intensity={exclusion_interval_msg.min_intensity}'
+    interval_query += f'&max_intensity={exclusion_interval_msg.max_intensity}'
 
     if interval_query:
         interval_query = '?' + interval_query[1:]
@@ -51,17 +42,13 @@ def make_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: Exc
 
 
 def make_exclusion_point_query(exclusion_api_ip: str, exclusion_point: ExclusionPoint):
+    exclusion_point_msg = ExclusionPointMsg.from_exclusion_point(exclusion_point)
     interval_query = ''
-    if exclusion_point.charge:
-        interval_query += f'&charge={exclusion_point.charge}'
-    if exclusion_point.mass:
-        interval_query += f'&mass={exclusion_point.mass}'
-    if exclusion_point.rt:
-        interval_query += f'&rt={exclusion_point.rt}'
-    if exclusion_point.ook0:
-        interval_query += f'&ook0={exclusion_point.ook0}'
-    if exclusion_point.intensity:
-        interval_query += f'&intensity={exclusion_point.intensity}'
+    interval_query += f'&charge={exclusion_point_msg.charge}'
+    interval_query += f'&mass={exclusion_point_msg.mass}'
+    interval_query += f'&rt={exclusion_point_msg.rt}'
+    interval_query += f'&ook0={exclusion_point_msg.ook0}'
+    interval_query += f'&intensity={exclusion_point_msg.intensity}'
 
     if interval_query:
         interval_query = '?' + interval_query[1:]

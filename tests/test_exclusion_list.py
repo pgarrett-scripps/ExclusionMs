@@ -180,7 +180,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=1000,
                                                                                 max_ook0=1001,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -191,7 +191,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=1000,
                                                                                 max_ook0=1001,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -202,7 +202,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=1000,
                                                                                 max_ook0=1001,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -213,7 +213,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=1000,
                                                                                 max_ook0=1001,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -224,7 +224,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=None,
                                                                                 max_ook0=1001,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -235,7 +235,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=None,
                                                                                 max_ook0=None,
                                                                                 min_intensity=1000,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -246,7 +246,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=None,
                                                                                 max_ook0=None,
                                                                                 min_intensity=None,
-                                                                                max_intensity=1001).convert_none())))
+                                                                                max_intensity=1001))))
 
         self.assertEqual(1, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -257,7 +257,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=None,
                                                                                 max_ook0=None,
                                                                                 min_intensity=None,
-                                                                                max_intensity=None).convert_none())))
+                                                                                max_intensity=None))))
 
         self.assertEqual(0, len(self.exlist.query_by_interval(ExclusionInterval(id='PEPTIDE',
                                                                                 charge=None,
@@ -268,7 +268,7 @@ class TestExclusionList(unittest.TestCase):
                                                                                 min_ook0=None,
                                                                                 max_ook0=None,
                                                                                 min_intensity=None,
-                                                                                max_intensity=None).convert_none())))
+                                                                                max_intensity=None))))
 
     def test_save_load(self):
         self.exlist.add(messages[0])
