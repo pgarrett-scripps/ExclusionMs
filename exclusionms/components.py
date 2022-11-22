@@ -214,7 +214,7 @@ class ExclusionInterval:
 
     def is_enveloped_by(self, other: 'ExclusionInterval'):
 
-        if other.charge is not None and self.charge != other.charge:  # data must have correct charge
+        if other.charge is not None and self.charge is not None and self.charge != other.charge:  # data must have correct charge
             return False
 
         if self.min_mass < other.min_mass or self.max_mass > other.max_mass:
