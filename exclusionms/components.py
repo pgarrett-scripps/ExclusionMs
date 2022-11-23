@@ -241,7 +241,7 @@ class ExclusionInterval:
                 'min_ook0': str(self._min_ook0),
                 'max_ook0': str(self._max_ook0),
                 'min_intensity': str(self._min_intensity),
-                'max_intensity': str(self.max_intensity)
+                'max_intensity': str(self._max_intensity)
                 }
 
     def is_valid(self):
