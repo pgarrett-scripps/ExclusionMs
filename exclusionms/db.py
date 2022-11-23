@@ -78,7 +78,7 @@ class MassIntervalTree(ExclusionList):
             raise Exception('Cannot add an interval with id = None')
         mass_interval = Interval(ex_interval.min_mass, ex_interval.max_mass, ex_interval)
         self.interval_tree.add(mass_interval)
-        self.id_dict.setdefault(ex_interval.interval_id, []).append(mass_interval)
+        self.id_dict.setdefault(ex_interval.interval_id, set()).add(mass_interval)
 
     def remove(self, ex_interval: ExclusionInterval) -> list[ExclusionInterval]:
         mass_intervals = self._get_interval(ex_interval)
@@ -148,7 +148,7 @@ class MassIntervalTree(ExclusionList):
             self.id_dict = {}
             for interval in self.interval_tree:
                 data = interval.data
-                self.id_dict.setdefault(data.interval_id, []).append(interval)
+                self.id_dict.setdefault(data.interval_id, set()).add(interval)
 
     def clear(self) -> None:
         """
