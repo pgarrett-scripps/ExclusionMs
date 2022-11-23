@@ -212,6 +212,10 @@ class ExclusionInterval:
                    f'min/max rt: {self._min_rt, self._max_rt}, min/max ook0: {self._min_ook0, self._max_ook0}, '
                    f'min/max intensity: {self._min_intensity, self._max_intensity}')
 
+    def __hash__(self):
+        return hash((self._interval_id, self._charge, self._min_mass, self._max_mass, self._min_rt, self._max_rt,
+                     self._min_ook0, self._max_ook0, self._min_intensity, self._max_intensity))
+
     def is_enveloped_by(self, other: 'ExclusionInterval'):
 
         if other.charge is not None and self.charge is not None and self.charge != other.charge:  # data must have correct charge
