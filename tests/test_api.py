@@ -3,7 +3,12 @@ import unittest
 import exclusionms.apihandler
 from exclusionms.components import ExclusionInterval, ExclusionPoint
 
-IP = 'http://127.0.0.1:8000'
+"""
+Must have ExclusionMSAPI running!
+"""
+
+IP = 'http://172.29.227.247:8000'
+#IP = 'http://127.0.0.1:8000'
 
 interval1 = ExclusionInterval(interval_id='PEPTIDE',
                               charge=1,
@@ -166,7 +171,6 @@ class TestExclusionList(unittest.TestCase):
                                                  min_intensity=None,
                                                  max_intensity=None))
         self.assertEqual(len(intervals), 1)
-
 
     def test_get_excluded_interval2(self):
         exclusionms.apihandler.add_exclusion_interval(

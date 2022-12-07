@@ -208,9 +208,10 @@ class ExclusionInterval:
                and self.min_intensity == other.min_intensity and self.max_intensity == other.max_intensity
 
     def __str__(self):
-        return str(f'interval_id: {self._interval_id}, charge: {self._charge}, min/max mass: {self._min_mass, self._max_mass}, '
-                   f'min/max rt: {self._min_rt, self._max_rt}, min/max ook0: {self._min_ook0, self._max_ook0}, '
-                   f'min/max intensity: {self._min_intensity, self._max_intensity}')
+        return str(
+            f'interval_id: {self._interval_id}, charge: {self._charge}, min/max mass: {self._min_mass, self._max_mass}, '
+            f'min/max rt: {self._min_rt, self._max_rt}, min/max ook0: {self._min_ook0, self._max_ook0}, '
+            f'min/max intensity: {self._min_intensity, self._max_intensity}')
 
     def __hash__(self):
         return hash((self._interval_id, self._charge, self._min_mass, self._max_mass, self._min_rt, self._max_rt,
@@ -358,7 +359,11 @@ class DynamicExclusionTolerance:
     intensity_tolerance: Union[float, None]
 
     def dict(self):
-        return {k: str(v) for k, v in asdict(self).items()}
+        return {'exact_charge': 'true' if self.exact_charge == True else 'false',
+                'mass': str(self.mass_tolerance) if self.mass_tolerance else '',
+                'rt': str(self.rt_tolerance) if self.rt_tolerance else '',
+                'ook0': str(self.ook0_tolerance) if self.ook0_tolerance else '',
+                'intensity': str(self.intensity_tolerance) if self.intensity_tolerance else ''}
 
     @staticmethod
     def from_tolerance_dict(tolerance_dict: dict) -> 'DynamicExclusionTolerance':
@@ -410,8 +415,8 @@ class DynamicExclusionTolerance:
 
     def calculate_intensity_bounds(self, intensity: Union[float, None]):
         if self.intensity_tolerance and intensity:
-            min_intensity = intensity - self.intensity_tolerance
-            max_intensity = intensity + self.intensity_tolerance
+            min_intensity = intensity / (1 + self.intensity_tolerance)
+            max_intensity = intensity + intensity * self.intensity_tolerance
             return min_intensity, max_intensity
         return None, None
 
@@ -430,6 +435,9 @@ class DynamicExclusionTolerance:
                                  max_mass=max_mass, min_rt=min_rt, max_rt=max_rt, min_ook0=min_ook0,
                                  max_ook0=max_ook0, min_intensity=min_intensity, max_intensity=max_intensity)
 
+"""
+Msg Objects are used for FastAPI Ser
+"""
 
 @dataclass
 class ExclusionIntervalMsg:

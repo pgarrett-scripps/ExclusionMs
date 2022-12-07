@@ -4,32 +4,31 @@ import unittest
 from exclusionms.components import ExclusionInterval
 
 interval1 = ExclusionInterval(interval_id='PEPTIDE',
-                             charge=1,
-                             min_mass=1000,
-                             max_mass=1001,
-                             min_rt=2000,
-                             max_rt=2001,
-                             min_ook0=3000,
-                             max_ook0=3001,
-                             min_intensity=4000,
-                             max_intensity=4001)
+                              charge=1,
+                              min_mass=1000,
+                              max_mass=1001,
+                              min_rt=2000,
+                              max_rt=2001,
+                              min_ook0=3000,
+                              max_ook0=3001,
+                              min_intensity=4000,
+                              max_intensity=4001)
 
 interval2 = ExclusionInterval(interval_id=None,
-                             charge=None,
-                             min_mass=None,
-                             max_mass=None,
-                             min_rt=None,
-                             max_rt=None,
-                             min_ook0=None,
-                             max_ook0=None,
-                             min_intensity=None,
-                             max_intensity=None)
+                              charge=None,
+                              min_mass=None,
+                              max_mass=None,
+                              min_rt=None,
+                              max_rt=None,
+                              min_ook0=None,
+                              max_ook0=None,
+                              min_intensity=None,
+                              max_intensity=None)
 
 
 class TestExclusionList(unittest.TestCase):
 
     def test_create(self):
-
         self.assertEqual(interval1.interval_id, 'PEPTIDE')
         self.assertEqual(interval1.charge, 1)
         self.assertEqual(interval1.min_mass, 1000)
@@ -59,46 +58,44 @@ class TestExclusionList(unittest.TestCase):
 
         self.assertTrue(
             ExclusionInterval(interval_id=None,
-                             charge=None,
-                             min_mass=1000,
-                             max_mass=1001,
-                             min_rt=None,
-                             max_rt=None,
-                             min_ook0=None,
-                             max_ook0=None,
-                             min_intensity=None,
-                             max_intensity=None).is_enveloped_by(
+                              charge=None,
+                              min_mass=1000,
+                              max_mass=1001,
+                              min_rt=None,
+                              max_rt=None,
+                              min_ook0=None,
+                              max_ook0=None,
+                              min_intensity=None,
+                              max_intensity=None).is_enveloped_by(
                 ExclusionInterval(interval_id=None,
-                             charge=1,
-                             min_mass=999,
-                             max_mass=1002,
-                             min_rt=None,
-                             max_rt=None,
-                             min_ook0=None,
-                             max_ook0=None,
-                             min_intensity=None,
-                             max_intensity=None)))
+                                  charge=1,
+                                  min_mass=999,
+                                  max_mass=1002,
+                                  min_rt=None,
+                                  max_rt=None,
+                                  min_ook0=None,
+                                  max_ook0=None,
+                                  min_intensity=None,
+                                  max_intensity=None)))
 
         self.assertTrue(
             ExclusionInterval(interval_id=None,
-                             charge=1,
-                             min_mass=1000,
-                             max_mass=1001,
-                             min_rt=None,
-                             max_rt=None,
-                             min_ook0=None,
-                             max_ook0=None,
-                             min_intensity=None,
-                             max_intensity=None).is_enveloped_by(
+                              charge=1,
+                              min_mass=1000,
+                              max_mass=1001,
+                              min_rt=None,
+                              max_rt=None,
+                              min_ook0=None,
+                              max_ook0=None,
+                              min_intensity=None,
+                              max_intensity=None).is_enveloped_by(
                 ExclusionInterval(interval_id=None,
-                             charge=None,
-                             min_mass=999,
-                             max_mass=1002,
-                             min_rt=None,
-                             max_rt=None,
-                             min_ook0=None,
-                             max_ook0=None,
-                             min_intensity=None,
-                             max_intensity=None)))
-
-
+                                  charge=None,
+                                  min_mass=999,
+                                  max_mass=1002,
+                                  min_rt=None,
+                                  max_rt=None,
+                                  min_ook0=None,
+                                  max_ook0=None,
+                                  min_intensity=None,
+                                  max_intensity=None)))

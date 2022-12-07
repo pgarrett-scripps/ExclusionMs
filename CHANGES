@@ -1,0 +1,3 @@
+0.0.9
+- made intensity tolerance log2foldchange
+- added proper tolerance dict

@@ -71,7 +71,7 @@ class MassIntervalTree(ExclusionList):
     """
 
     interval_tree: IntervalTree = field(default_factory=lambda: IntervalTree())
-    id_dict: Dict[str, list] = field(default_factory=lambda: dict())
+    id_dict: Dict[str, set] = field(default_factory=lambda: dict())
 
     def add(self, ex_interval: ExclusionInterval):
         if ex_interval.interval_id is None:
@@ -113,7 +113,7 @@ class MassIntervalTree(ExclusionList):
         intervals = self.id_dict.get(interval_id)
         if intervals is None:
             return []
-        return intervals
+        return list(intervals)
 
     def is_excluded(self, point: ExclusionPoint) -> bool:
         return len(self.query_by_point(point)) > 0
@@ -161,4 +161,6 @@ class MassIntervalTree(ExclusionList):
         return len(self.interval_tree)
 
     def stats(self):
-        return {'len': len(self), 'id_table_len': sum([len(self.id_dict[key]) for key in self.id_dict]), 'class': str(type(self))}
+        return {'len': len(self),
+                'id_table_len': sum([len(self.id_dict[key]) for key in self.id_dict]),
+                'class': str(type(self))}
