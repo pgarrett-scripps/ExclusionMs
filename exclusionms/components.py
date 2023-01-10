@@ -72,7 +72,7 @@ def parse_bool_str(val: str) -> Union[bool, None]:
 
 def convert_min_bounds(min_bound: Union[float, None]) -> float:
     if min_bound is None:
-        return sys.float_info.min
+        return -sys.float_info.max
     return min_bound
 
 

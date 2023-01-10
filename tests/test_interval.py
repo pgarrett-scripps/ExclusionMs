@@ -43,13 +43,13 @@ class TestExclusionList(unittest.TestCase):
     def test_none(self):
         self.assertEqual(interval2.interval_id, None)
         self.assertEqual(interval2.charge, None)
-        self.assertEqual(interval2.min_mass, sys.float_info.min)
+        self.assertEqual(interval2.min_mass, -sys.float_info.max)
         self.assertEqual(interval2.max_mass, sys.float_info.max)
-        self.assertEqual(interval2.min_rt, sys.float_info.min)
+        self.assertEqual(interval2.min_rt, -sys.float_info.max)
         self.assertEqual(interval2.max_rt, sys.float_info.max)
-        self.assertEqual(interval2.min_ook0, sys.float_info.min)
+        self.assertEqual(interval2.min_ook0, -sys.float_info.max)
         self.assertEqual(interval2.max_ook0, sys.float_info.max)
-        self.assertEqual(interval2.min_intensity, sys.float_info.min)
+        self.assertEqual(interval2.min_intensity, -sys.float_info.max)
         self.assertEqual(interval2.max_intensity, sys.float_info.max)
 
     def test_interval_envelope(self):
@@ -99,3 +99,29 @@ class TestExclusionList(unittest.TestCase):
                                   max_ook0=None,
                                   min_intensity=None,
                                   max_intensity=None)))
+    def test_interval_envelope_id(self):
+        self.assertTrue(interval1.is_enveloped_by(interval2))
+        self.assertFalse(interval2.is_enveloped_by(interval1))
+
+        e1 = ExclusionInterval(interval_id='1',
+                              charge=None,
+                              min_mass=0,
+                              max_mass=1600,
+                              min_rt=None,
+                              max_rt=None,
+                              min_ook0=None,
+                              max_ook0=None,
+                              min_intensity=None,
+                              max_intensity=None)
+        e2 = ExclusionInterval(interval_id='1',
+                                  charge=None,
+                                  min_mass=None,
+                                  max_mass=None,
+                                  min_rt=None,
+                                  max_rt=None,
+                                  min_ook0=None,
+                                  max_ook0=None,
+                                  min_intensity=None,
+                                  max_intensity=None)
+        res = e1.is_enveloped_by(e2)
+        self.assertTrue(res)

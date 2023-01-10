@@ -110,10 +110,9 @@ class MassIntervalTree(ExclusionList):
         return intervals
 
     def _get_intervals_by_id(self, interval_id: Any) -> List[Interval]:
-        intervals = self.id_dict.get(interval_id)
-        if intervals is None:
-            return []
-        return list(intervals)
+        if interval_id in self.id_dict:
+            return list(self.id_dict[interval_id])
+        return []
 
     def is_excluded(self, point: ExclusionPoint) -> bool:
         return len(self.query_by_point(point)) > 0
