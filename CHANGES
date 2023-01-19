@@ -1,6 +1,8 @@
 0.0.9
 - made intensity tolerance log2foldchange
 - added proper tolerance dict
+0.0.10
+- fixed logic bug with sys.float.min
 0.0.11
 - removed intensity tolerance log2foldchange
 - fixed interval.dict()
