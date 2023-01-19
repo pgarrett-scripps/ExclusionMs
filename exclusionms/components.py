@@ -1,6 +1,7 @@
 import ast
 import sys
 from dataclasses import dataclass, asdict
+from enum import Enum
 from typing import Union, Dict
 
 from .exceptions import IncorrectToleranceException
@@ -88,11 +89,25 @@ def convert_charge(charge: Union[int, None]) -> int:
     return charge
 
 
+# TODO: Use StrEnum in pyton 3.11
+class IntervalKey(Enum):
+    INTERVAL_ID = 'interval_id'
+    CHARGE = 'charge'
+    MIN_MASS = 'min_mass'
+    MAX_MASS = 'max_mass'
+    MIN_RT = 'min_rt'
+    MAX_RT = 'max_rt'
+    MIN_OOK0 = 'min_ook0'
+    MAX_OOK0 = 'max_ook0'
+    MIN_INTENSITY = 'min_intensity'
+    MAX_INTENSITY = 'max_intensity'
+
+
 class ExclusionInterval:
     """
     Represents an interval in the excluded space.
 
-    id: The Id of the interval. Does not have to be unique. If None: Represents all IDs.
+    id: The id of the interval. Does not have to be unique. If None: Represents all IDs.
     charge: The charge of the excluded interval. If None: the Interval represents all charges
     min_bounds: The lower 'inclusive' bound of the interval. If None: Will be set to sys.float_info.min
     max_bounds: The upper 'exclusive' bound of the interval. If None: Will be set to sys.float_info.max
@@ -204,12 +219,12 @@ class ExclusionInterval:
 
     def __eq__(self, other: 'ExclusionInterval') -> bool:
         return self.interval_id == other.interval_id and self.charge == other.charge and self.min_mass == other.min_mass and self.max_mass == other.max_mass \
-               and self.min_rt == other.min_rt and self.max_rt == other.max_rt and self.min_ook0 == other.min_ook0 and self.max_ook0 == other.max_ook0 \
-               and self.min_intensity == other.min_intensity and self.max_intensity == other.max_intensity
+            and self.min_rt == other.min_rt and self.max_rt == other.max_rt and self.min_ook0 == other.min_ook0 and self.max_ook0 == other.max_ook0 \
+            and self.min_intensity == other.min_intensity and self.max_intensity == other.max_intensity
 
     def __str__(self):
         return str(
-            f'interval_id: {self._interval_id}, charge: {self._charge}, min/max mass: {self._min_mass, self._max_mass}, '
+            f'{IntervalKey.INTERVAL_ID.value}: {self._interval_id}, charge: {self._charge}, min/max mass: {self._min_mass, self._max_mass}, '
             f'min/max rt: {self._min_rt, self._max_rt}, min/max ook0: {self._min_ook0, self._max_ook0}, '
             f'min/max intensity: {self._min_intensity, self._max_intensity}')
 
@@ -237,16 +252,16 @@ class ExclusionInterval:
         return True
 
     def dict(self):
-        return {'interval_id': str(self._interval_id),
-                'charge': str(self._charge),
-                'min_mass': str(self._min_mass),
-                'mas_mass': str(self._max_mass),
-                'min_rt': str(self._min_rt),
-                'max_rt': str(self._max_rt),
-                'min_ook0': str(self._min_ook0),
-                'max_ook0': str(self._max_ook0),
-                'min_intensity': str(self._min_intensity),
-                'max_intensity': str(self._max_intensity)
+        return {IntervalKey.INTERVAL_ID.value: str(self._interval_id),
+                IntervalKey.CHARGE.value: str(self._charge),
+                IntervalKey.MIN_MASS.value: str(self._min_mass),
+                IntervalKey.MAX_MASS.value: str(self._max_mass),
+                IntervalKey.MIN_RT.value: str(self._min_rt),
+                IntervalKey.MAX_RT.value: str(self._max_rt),
+                IntervalKey.MIN_OOK0.value: str(self._min_ook0),
+                IntervalKey.MAX_OOK0.value: str(self._max_ook0),
+                IntervalKey.MIN_INTENSITY.value: str(self._min_intensity),
+                IntervalKey.MAX_INTENSITY.value: str(self._max_intensity)
                 }
 
     def is_valid(self):
@@ -268,16 +283,16 @@ class ExclusionInterval:
     @staticmethod
     def from_dict(res: Dict):
 
-        interval_id = parse_str_str(res.get('interval_id'))
-        charge = parse_int_str(res.get('charge'))
-        min_mass = parse_float_str(res.get('min_mass'))
-        max_mass = parse_float_str(res.get('max_mass'))
-        min_rt = parse_float_str(res.get('min_rt'))
-        max_rt = parse_float_str(res.get('max_rt'))
-        min_ook0 = parse_float_str(res.get('min_ook0'))
-        max_ook0 = parse_float_str(res.get('max_ook0'))
-        min_intensity = parse_float_str(res.get('min_intensity'))
-        max_intensity = parse_float_str(res.get('max_intensity'))
+        interval_id = parse_str_str(res.get(IntervalKey.INTERVAL_ID.value))
+        charge = parse_int_str(res.get(IntervalKey.CHARGE.value))
+        min_mass = parse_float_str(res.get(IntervalKey.MIN_MASS.value))
+        max_mass = parse_float_str(res.get(IntervalKey.MAX_MASS.value))
+        min_rt = parse_float_str(res.get(IntervalKey.MIN_RT.value))
+        max_rt = parse_float_str(res.get(IntervalKey.MAX_RT.value))
+        min_ook0 = parse_float_str(res.get(IntervalKey.MIN_OOK0.value))
+        max_ook0 = parse_float_str(res.get(IntervalKey.MAX_OOK0.value))
+        min_intensity = parse_float_str(res.get(IntervalKey.MIN_INTENSITY.value))
+        max_intensity = parse_float_str(res.get(IntervalKey.MAX_INTENSITY.value))
 
         exclusion_interval = ExclusionInterval(interval_id=interval_id,
                                                charge=charge,
@@ -291,6 +306,15 @@ class ExclusionInterval:
                                                max_intensity=max_intensity
                                                )
         return exclusion_interval
+
+
+# TODO: Use StrEnum in pyton 3.11
+class PointKey(Enum):
+    CHARGE = 'charge'
+    MASS = 'mass'
+    RT = 'rt'
+    OOK0 = 'ook0'
+    INTENSITY = 'intensity'
 
 
 @dataclass()
@@ -335,11 +359,11 @@ class ExclusionPoint:
 
     @staticmethod
     def from_dict(res: Dict):
-        charge = parse_int_str(res.get('charge'))
-        mass = parse_float_str(res.get('mass'))
-        rt = parse_float_str(res.get('rt'))
-        ook0 = parse_float_str(res.get('ook0'))
-        intensity = parse_float_str(res.get('intensity'))
+        charge = parse_int_str(res.get(PointKey.CHARGE.value))
+        mass = parse_float_str(res.get(PointKey.MASS.value))
+        rt = parse_float_str(res.get(PointKey.RT.value))
+        ook0 = parse_float_str(res.get(PointKey.OOK0.value))
+        intensity = parse_float_str(res.get(PointKey.INTENSITY.value))
 
         exclusion_point = ExclusionPoint(charge=charge,
                                          mass=mass,
@@ -348,6 +372,15 @@ class ExclusionPoint:
                                          intensity=intensity,
                                          )
         return exclusion_point
+
+
+# TODO: Use StrEnum in pyton 3.11
+class ToleranceKey(Enum):
+    EXACT_CHARGE = 'exact_charge'
+    MASS = 'mass'
+    RT = 'rt'
+    OOK0 = 'ook0'
+    INTENSITY = 'intensity'
 
 
 @dataclass
@@ -359,23 +392,23 @@ class DynamicExclusionTolerance:
     intensity_tolerance: Union[float, None]
 
     def dict(self):
-        return {'exact_charge': 'true' if self.exact_charge == True else 'false',
-                'mass': str(self.mass_tolerance) if self.mass_tolerance else '',
-                'rt': str(self.rt_tolerance) if self.rt_tolerance else '',
-                'ook0': str(self.ook0_tolerance) if self.ook0_tolerance else '',
-                'intensity': str(self.intensity_tolerance) if self.intensity_tolerance else ''}
+        return {ToleranceKey.EXACT_CHARGE.value: 'true' if self.exact_charge == True else 'false',
+                ToleranceKey.MASS.value: str(self.mass_tolerance) if self.mass_tolerance else '',
+                ToleranceKey.RT.value: str(self.rt_tolerance) if self.rt_tolerance else '',
+                ToleranceKey.OOK0.value: str(self.ook0_tolerance) if self.ook0_tolerance else '',
+                ToleranceKey.INTENSITY.value: str(self.intensity_tolerance) if self.intensity_tolerance else ''}
 
     @staticmethod
     def from_tolerance_dict(tolerance_dict: dict) -> 'DynamicExclusionTolerance':
-        exact_charge = parse_bool_str(tolerance_dict.get('exact_charge'))
+        exact_charge = parse_bool_str(tolerance_dict.get(ToleranceKey.EXACT_CHARGE.value))
         if exact_charge is None:
             raise ValueError(f'exact charge cannot be None!')
         return DynamicExclusionTolerance(
             exact_charge=exact_charge,
-            mass_tolerance=parse_float_str(tolerance_dict.get('mass')),
-            rt_tolerance=parse_float_str(tolerance_dict.get('rt')),
-            ook0_tolerance=parse_float_str(tolerance_dict.get('ook0')),
-            intensity_tolerance=parse_float_str(tolerance_dict.get('intensity'))
+            mass_tolerance=parse_float_str(tolerance_dict.get(ToleranceKey.MASS.value)),
+            rt_tolerance=parse_float_str(tolerance_dict.get(ToleranceKey.RT.value)),
+            ook0_tolerance=parse_float_str(tolerance_dict.get(ToleranceKey.OOK0.value)),
+            intensity_tolerance=parse_float_str(tolerance_dict.get(ToleranceKey.INTENSITY.value))
         )
 
     @staticmethod
@@ -415,7 +448,7 @@ class DynamicExclusionTolerance:
 
     def calculate_intensity_bounds(self, intensity: Union[float, None]):
         if self.intensity_tolerance and intensity:
-            min_intensity = intensity / (1 + self.intensity_tolerance)
+            min_intensity = intensity - intensity * self.intensity_tolerance
             max_intensity = intensity + intensity * self.intensity_tolerance
             return min_intensity, max_intensity
         return None, None
@@ -435,9 +468,11 @@ class DynamicExclusionTolerance:
                                  max_mass=max_mass, min_rt=min_rt, max_rt=max_rt, min_ook0=min_ook0,
                                  max_ook0=max_ook0, min_intensity=min_intensity, max_intensity=max_intensity)
 
+
 """
-Msg Objects are used for FastAPI Ser
+Msg Objects are used for FastAPI Server
 """
+
 
 @dataclass
 class ExclusionIntervalMsg:

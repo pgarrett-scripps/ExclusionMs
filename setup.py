@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='exclusionms',
-    version='0.0.10',
+    version='0.0.11',
     packages=['exclusionms'],
     url='',
     license='',
