@@ -1,4 +1,4 @@
-from .components import ExclusionInterval, ExclusionPoint, ExclusionIntervalMsg, ExclusionPointMsg
+from .components import ExclusionInterval, ExclusionPoint
 
 
 def make_clear_query(exclusion_api_ip: str):
@@ -20,7 +20,7 @@ def make_stats_query(exclusion_api_ip: str):
 def make_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: ExclusionInterval) -> str:
     interval_query = ''
 
-    exclusion_interval_msg = ExclusionIntervalMsg.from_exclusion_interval(exclusion_interval)
+    exclusion_interval_msg = exclusion_interval
 
     interval_query += f'&interval_id={exclusion_interval_msg.interval_id}'
     interval_query += f'&charge={exclusion_interval_msg.charge}'
@@ -42,7 +42,7 @@ def make_exclusion_interval_query(exclusion_api_ip: str, exclusion_interval: Exc
 
 
 def make_exclusion_point_query(exclusion_api_ip: str, exclusion_point: ExclusionPoint):
-    exclusion_point_msg = ExclusionPointMsg.from_exclusion_point(exclusion_point)
+    exclusion_point_msg = exclusion_point
     interval_query = ''
     interval_query += f'&charge={exclusion_point_msg.charge}'
     interval_query += f'&mass={exclusion_point_msg.mass}'

@@ -3,7 +3,7 @@ from typing import List, Dict
 
 import requests
 
-from .components import ExclusionPoint, ExclusionInterval, ExclusionIntervalMsg
+from .components import ExclusionPoint, ExclusionInterval
 from .exceptions import UnexpectedStatusCodeException
 from .queryfactory import make_save_query, make_load_query, make_stats_query, \
     make_exclusion_interval_query, make_clear_query, make_exclusion_points_query, make_exclusion_point_query
@@ -65,7 +65,7 @@ def delete_exclusion_list_save(exclusion_api_ip: str, exid: str, timeout=None):
 def add_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> None:
     query = f'{exclusion_api_ip}/exclusionms/interval'
 
-    response = requests.post(query, json=ExclusionIntervalMsg.from_exclusion_interval(exclusion_interval).dict(), timeout=timeout)
+    response = requests.post(query, json=exclusion_interval.dict(), timeout=timeout)
 
     if response.status_code != 200:
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
@@ -74,7 +74,7 @@ def add_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionI
 def add_exclusion_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None) -> None:
     query = f'{exclusion_api_ip}/exclusionms/intervals'
 
-    json_msg = [ExclusionIntervalMsg.from_exclusion_interval(interval).dict() for interval in exclusion_intervals]
+    json_msg = [interval.dict() for interval in exclusion_intervals]
 
     response = requests.post(query, json=json_msg, timeout=timeout)
 
@@ -92,19 +92,19 @@ def get_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionI
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
     response_dicts = json.loads(response.content)
-    exclusion_intervals = [ExclusionIntervalMsg(**d).to_exclusion_interval() for d in response_dicts]
+    exclusion_intervals = [ExclusionInterval.from_dict(d) for d in response_dicts]
     return exclusion_intervals
 
 
 def delete_exclusion_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[ExclusionInterval]:
     query = f'{exclusion_api_ip}/exclusionms/interval'
-    response = requests.delete(query, json=ExclusionIntervalMsg.from_exclusion_interval(exclusion_interval).dict(), timeout=timeout)
+    response = requests.delete(query, json=exclusion_interval.dict(), timeout=timeout)
 
     if response.status_code != 200:
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
     response_dicts = json.loads(response.content)
-    exclusion_intervals = [ExclusionIntervalMsg(**d).to_exclusion_interval() for d in response_dicts]
+    exclusion_intervals = [ExclusionInterval.from_dict(d) for d in response_dicts]
     return exclusion_intervals
 
 
@@ -116,7 +116,7 @@ def get_intervals_from_point(exclusion_api_ip: str, exclusion_point: ExclusionPo
         raise UnexpectedStatusCodeException(response.status_code, 200, response.content.decode(encoding='utf-8'))
 
     response_dicts = json.loads(response.content)
-    exclusion_intervals = [ExclusionIntervalMsg(**d).to_exclusion_interval() for d in response_dicts]
+    exclusion_intervals = [ExclusionInterval.from_dict(d) for d in response_dicts]
     return exclusion_intervals
 
 

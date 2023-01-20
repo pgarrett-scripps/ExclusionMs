@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 
 from intervaltree import IntervalTree, Interval
 
-from .components import ExclusionInterval, ExclusionPoint
+from .components import ExclusionInterval, ExclusionPoint, convert_min_bounds, convert_max_bounds
 
 
 @dataclass
@@ -76,11 +76,11 @@ class MassIntervalTree(ExclusionList):
     def add(self, ex_interval: ExclusionInterval):
         if ex_interval.interval_id is None:
             raise Exception('Cannot add an interval with id = None')
-        mass_interval = Interval(ex_interval.min_mass, ex_interval.max_mass, ex_interval)
+        mass_interval = Interval(convert_min_bounds(ex_interval.min_mass), convert_max_bounds(ex_interval.max_mass), ex_interval)
         self.interval_tree.add(mass_interval)
         self.id_dict.setdefault(ex_interval.interval_id, set()).add(mass_interval)
 
-    def remove(self, ex_interval: ExclusionInterval) -> list[ExclusionInterval]:
+    def remove(self, ex_interval: ExclusionInterval) -> List[ExclusionInterval]:
         mass_intervals = self._get_interval(ex_interval)
         if mass_intervals is None:
             return []

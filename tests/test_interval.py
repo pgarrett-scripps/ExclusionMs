@@ -43,14 +43,14 @@ class TestExclusionList(unittest.TestCase):
     def test_none(self):
         self.assertEqual(interval2.interval_id, None)
         self.assertEqual(interval2.charge, None)
-        self.assertEqual(interval2.min_mass, -sys.float_info.max)
-        self.assertEqual(interval2.max_mass, sys.float_info.max)
-        self.assertEqual(interval2.min_rt, -sys.float_info.max)
-        self.assertEqual(interval2.max_rt, sys.float_info.max)
-        self.assertEqual(interval2.min_ook0, -sys.float_info.max)
-        self.assertEqual(interval2.max_ook0, sys.float_info.max)
-        self.assertEqual(interval2.min_intensity, -sys.float_info.max)
-        self.assertEqual(interval2.max_intensity, sys.float_info.max)
+        self.assertEqual(interval2.min_mass, None)
+        self.assertEqual(interval2.max_mass, None)
+        self.assertEqual(interval2.min_rt, None)
+        self.assertEqual(interval2.max_rt, None)
+        self.assertEqual(interval2.min_ook0, None)
+        self.assertEqual(interval2.max_ook0, None)
+        self.assertEqual(interval2.min_intensity, None)
+        self.assertEqual(interval2.max_intensity, None)
 
     def test_interval_envelope(self):
         self.assertTrue(interval1.is_enveloped_by(interval2))

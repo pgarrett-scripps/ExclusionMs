@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ast
 import sys
 from dataclasses import dataclass, asdict
@@ -5,6 +7,7 @@ from enum import Enum
 from typing import Union, Dict
 
 from .exceptions import IncorrectToleranceException
+from pydantic import BaseModel
 
 
 def parse_float_str(val: str) -> Union[float, None]:
@@ -102,8 +105,7 @@ class IntervalKey(Enum):
     MIN_INTENSITY = 'min_intensity'
     MAX_INTENSITY = 'max_intensity'
 
-
-class ExclusionInterval:
+class ExclusionInterval(BaseModel):
     """
     Represents an interval in the excluded space.
 
@@ -112,166 +114,48 @@ class ExclusionInterval:
     min_bounds: The lower 'inclusive' bound of the interval. If None: Will be set to sys.float_info.min
     max_bounds: The upper 'exclusive' bound of the interval. If None: Will be set to sys.float_info.max
     """
-
-    def __init__(self,
-                 interval_id: Union[str, None],
-                 charge: Union[int, None],
-                 min_mass: Union[float, None],
-                 max_mass: Union[float, None],
-                 min_rt: Union[float, None],
-                 max_rt: Union[float, None],
-                 min_ook0: Union[float, None],
-                 max_ook0: Union[float, None],
-                 min_intensity: Union[float, None],
-                 max_intensity: Union[float, None]
-                 ):
-
-        self._interval_id = interval_id
-        self._charge = charge
-        self._min_mass = min_mass
-        self._max_mass = max_mass
-        self._min_rt = min_rt
-        self._max_rt = max_rt
-        self._min_ook0 = min_ook0
-        self._max_ook0 = max_ook0
-        self._min_intensity = min_intensity
-        self._max_intensity = max_intensity
-
-    @property
-    def interval_id(self) -> Union[None, str]:
-        return self._interval_id
-
-    @interval_id.setter
-    def interval_id(self, interval_id: Union[str, None]):
-        self._interval_id = interval_id
-
-    @property
-    def charge(self) -> Union[int, None]:
-        return self._charge
-
-    @charge.setter
-    def charge(self, charge: Union[int, None]):
-        self._charge = charge
-
-    @property
-    def min_mass(self) -> float:
-        return convert_min_bounds(self._min_mass)
-
-    @min_mass.setter
-    def min_mass(self, min_mass: Union[float, None]):
-        self._min_mass = min_mass
-
-    @property
-    def max_mass(self) -> float:
-        return convert_max_bounds(self._max_mass)
-
-    @max_mass.setter
-    def max_mass(self, max_mass: Union[float, None]):
-        self._max_mass = max_mass
-
-    @property
-    def min_rt(self) -> float:
-        return convert_min_bounds(self._min_rt)
-
-    @min_rt.setter
-    def min_rt(self, min_rt: Union[float, None]):
-        self._min_rt = min_rt
-
-    @property
-    def max_rt(self) -> float:
-        return convert_max_bounds(self._max_rt)
-
-    @max_rt.setter
-    def max_rt(self, max_rt: Union[float, None]):
-        self._max_rt = max_rt
-
-    @property
-    def min_ook0(self) -> float:
-        return convert_min_bounds(self._min_ook0)
-
-    @min_ook0.setter
-    def min_ook0(self, min_ook0: Union[float, None]):
-        self._min_ook0 = min_ook0
-
-    @property
-    def max_ook0(self) -> float:
-        return convert_max_bounds(self._max_ook0)
-
-    @max_ook0.setter
-    def max_ook0(self, max_ook0: Union[float, None]):
-        self._max_ook0 = max_ook0
-
-    @property
-    def min_intensity(self) -> float:
-        return convert_min_bounds(self._min_intensity)
-
-    @min_intensity.setter
-    def min_intensity(self, min_intensity: Union[float, None]):
-        self._min_intensity = min_intensity
-
-    @property
-    def max_intensity(self) -> float:
-        return convert_max_bounds(self._max_intensity)
-
-    @max_intensity.setter
-    def max_intensity(self, max_intensity: Union[float, None]):
-        self._max_intensity = max_intensity
-
-    def __eq__(self, other: 'ExclusionInterval') -> bool:
-        return self.interval_id == other.interval_id and self.charge == other.charge and self.min_mass == other.min_mass and self.max_mass == other.max_mass \
-            and self.min_rt == other.min_rt and self.max_rt == other.max_rt and self.min_ook0 == other.min_ook0 and self.max_ook0 == other.max_ook0 \
-            and self.min_intensity == other.min_intensity and self.max_intensity == other.max_intensity
-
-    def __str__(self):
-        return str(
-            f'{IntervalKey.INTERVAL_ID.value}: {self._interval_id}, charge: {self._charge}, min/max mass: {self._min_mass, self._max_mass}, '
-            f'min/max rt: {self._min_rt, self._max_rt}, min/max ook0: {self._min_ook0, self._max_ook0}, '
-            f'min/max intensity: {self._min_intensity, self._max_intensity}')
-
-    def __hash__(self):
-        return hash((self._interval_id, self._charge, self._min_mass, self._max_mass, self._min_rt, self._max_rt,
-                     self._min_ook0, self._max_ook0, self._min_intensity, self._max_intensity))
+    interval_id: Union[str, None]
+    charge: Union[int, None]
+    min_mass: Union[float, None]
+    max_mass: Union[float, None]
+    min_rt: Union[float, None]
+    max_rt: Union[float, None]
+    min_ook0: Union[float, None]
+    max_ook0: Union[float, None]
+    min_intensity: Union[float, None]
+    max_intensity: Union[float, None]
 
     def is_enveloped_by(self, other: 'ExclusionInterval'):
 
         if other.charge is not None and self.charge is not None and self.charge != other.charge:  # data must have correct charge
             return False
 
-        if self.min_mass < other.min_mass or self.max_mass > other.max_mass:
+        if convert_min_bounds(self.min_mass) < convert_min_bounds(other.min_mass) or \
+                convert_max_bounds(self.max_mass) > convert_max_bounds(other.max_mass):
             return False
 
-        if self.min_rt < other.min_rt or self.max_rt > other.max_rt:
+        if convert_min_bounds(self.min_rt) < convert_min_bounds(other.min_rt) or \
+                convert_max_bounds(self.max_rt) > convert_max_bounds(other.max_rt):
             return False
 
-        if self.min_ook0 < other.min_ook0 or self.max_ook0 > other.max_ook0:
+        if convert_min_bounds(self.min_ook0) < convert_min_bounds(other.min_ook0) or \
+                convert_max_bounds(self.max_ook0) > convert_max_bounds(other.max_ook0):
             return False
 
-        if self.min_intensity < other.min_intensity or self.max_intensity > other.max_intensity:
+        if convert_min_bounds(self.min_intensity) < convert_min_bounds(other.min_intensity) or \
+                convert_max_bounds(self.max_intensity) > convert_max_bounds(other.max_intensity):
             return False
 
         return True
 
-    def dict(self):
-        return {IntervalKey.INTERVAL_ID.value: str(self._interval_id),
-                IntervalKey.CHARGE.value: str(self._charge),
-                IntervalKey.MIN_MASS.value: str(self._min_mass),
-                IntervalKey.MAX_MASS.value: str(self._max_mass),
-                IntervalKey.MIN_RT.value: str(self._min_rt),
-                IntervalKey.MAX_RT.value: str(self._max_rt),
-                IntervalKey.MIN_OOK0.value: str(self._min_ook0),
-                IntervalKey.MAX_OOK0.value: str(self._max_ook0),
-                IntervalKey.MIN_INTENSITY.value: str(self._min_intensity),
-                IntervalKey.MAX_INTENSITY.value: str(self._max_intensity)
-                }
-
     def is_valid(self):
-        if self.min_mass > self.max_mass:
+        if convert_min_bounds(self.min_mass) > convert_max_bounds(self.max_mass):
             return False
-        if self.min_rt > self.max_rt:
+        if convert_min_bounds(self.min_rt) > convert_max_bounds(self.max_rt):
             return False
-        if self.min_ook0 > self.max_ook0:
+        if convert_min_bounds(self.min_ook0) > convert_max_bounds(self.max_ook0):
             return False
-        if self.min_intensity > self.max_intensity:
+        if convert_min_bounds(self.min_intensity) > convert_max_bounds(self.max_intensity):
             return False
         return True
 
@@ -317,8 +201,7 @@ class PointKey(Enum):
     INTENSITY = 'intensity'
 
 
-@dataclass()
-class ExclusionPoint:
+class ExclusionPoint(BaseModel):
     """
     Represents a point in the excluded space. None values will be ignored.
     """
@@ -348,9 +231,6 @@ class ExclusionPoint:
             return False
 
         return True
-
-    def dict(self):
-        return {k: str(v) for k, v in asdict(self).items()}
 
     @staticmethod
     def from_str(serialized_point: str):
@@ -467,67 +347,3 @@ class DynamicExclusionTolerance:
         return ExclusionInterval(interval_id=interval_id, charge=charge, min_mass=min_mass,
                                  max_mass=max_mass, min_rt=min_rt, max_rt=max_rt, min_ook0=min_ook0,
                                  max_ook0=max_ook0, min_intensity=min_intensity, max_intensity=max_intensity)
-
-
-"""
-Msg Objects are used for FastAPI Server
-"""
-
-
-@dataclass
-class ExclusionIntervalMsg:
-    interval_id: str
-    charge: str
-    min_mass: str
-    max_mass: str
-    min_rt: str
-    max_rt: str
-    min_ook0: str
-    max_ook0: str
-    min_intensity: str
-    max_intensity: str
-
-    def dict(self) -> dict:
-        return {k: v for k, v in asdict(self).items()}
-
-    def to_exclusion_interval(self) -> ExclusionInterval:
-        return ExclusionInterval.from_dict(self.dict())
-
-    @staticmethod
-    def from_exclusion_interval(exclusion_interval: ExclusionInterval) -> 'ExclusionIntervalMsg':
-        return ExclusionIntervalMsg(interval_id=str(exclusion_interval._interval_id),
-                                    charge=str(exclusion_interval._charge),
-                                    min_mass=str(exclusion_interval._min_mass),
-                                    max_mass=str(exclusion_interval._max_mass),
-                                    min_rt=str(exclusion_interval._min_rt),
-                                    max_rt=str(exclusion_interval._max_rt),
-                                    min_ook0=str(exclusion_interval._min_ook0),
-                                    max_ook0=str(exclusion_interval._max_ook0),
-                                    min_intensity=str(exclusion_interval._min_intensity),
-                                    max_intensity=str(exclusion_interval._max_intensity),
-                                    )
-
-
-@dataclass
-class ExclusionPointMsg:
-    charge: str
-    mass: str
-    rt: str
-    ook0: str
-    intensity: str
-
-    def dict(self) -> dict:
-        return {k: v for k, v in asdict(self).items()}
-
-    def to_exclusion_point(self) -> ExclusionPoint:
-        return ExclusionPoint.from_dict(self.dict())
-
-    @staticmethod
-    def from_exclusion_point(exclusion_point: ExclusionPoint) -> 'ExclusionPointMsg':
-        return ExclusionPointMsg(
-            charge=str(exclusion_point.charge),
-            mass=str(exclusion_point.mass),
-            rt=str(exclusion_point.rt),
-            ook0=str(exclusion_point.ook0),
-            intensity=str(exclusion_point.intensity),
-        )

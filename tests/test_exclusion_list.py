@@ -57,8 +57,16 @@ class TestExclusionList(unittest.TestCase):
     def test_add_remove_bounds(self):
         self.exlist.add(messages[0])
         self.assertEqual(1, len(self.exlist))
-        tmp_msg = deepcopy(messages[0])
-        tmp_msg.id = None
+        tmp_msg =     ExclusionInterval(interval_id=None,
+                      charge=1,
+                      min_mass=1000,
+                      max_mass=1001,
+                      min_rt=1000,
+                      max_rt=1001,
+                      min_ook0=1000,
+                      max_ook0=1001,
+                      min_intensity=1000,
+                      max_intensity=1001)
         self.exlist.remove(tmp_msg)
         self.assertEqual(0, len(self.exlist))
 
