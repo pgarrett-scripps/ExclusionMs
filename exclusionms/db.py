@@ -62,6 +62,11 @@ class ExclusionList(ABC):
         pass
 
 
+def get_mass_interval(ex_interval: ExclusionInterval):
+    return Interval(convert_min_bounds(ex_interval.min_mass), convert_max_bounds(ex_interval.max_mass),
+                             ex_interval)
+
+
 @dataclass
 class MassIntervalTree(ExclusionList):
     """
@@ -76,7 +81,7 @@ class MassIntervalTree(ExclusionList):
     def add(self, ex_interval: ExclusionInterval):
         if ex_interval.interval_id is None:
             raise Exception('Cannot add an interval with id = None')
-        mass_interval = Interval(convert_min_bounds(ex_interval.min_mass), convert_max_bounds(ex_interval.max_mass), ex_interval)
+        mass_interval = get_mass_interval(ex_interval)
         self.interval_tree.add(mass_interval)
         self.id_dict.setdefault(ex_interval.interval_id, set()).add(mass_interval)
 
@@ -105,7 +110,7 @@ class MassIntervalTree(ExclusionList):
         return mass_intervals
 
     def _get_intervals_by_bounds(self, ex_interval: ExclusionInterval) -> List[Interval]:
-        intervals = self.interval_tree.envelop(Interval(ex_interval.min_mass, ex_interval.max_mass, ex_interval))
+        intervals = self.interval_tree.envelop(get_mass_interval(ex_interval))
         intervals = [i for i in intervals if i.data.is_enveloped_by(ex_interval)]
         return intervals
 
