@@ -1,5 +1,4 @@
 import pickle
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Dict, Any, List
 
@@ -8,67 +7,14 @@ from intervaltree import IntervalTree, Interval
 from .components import ExclusionInterval, ExclusionPoint, convert_min_bounds, convert_max_bounds
 
 
-@dataclass
-class ExclusionList(ABC):
-
-    @abstractmethod
-    def add(self, interval: ExclusionInterval):
-        """
-        adds an interval to the list
-        :param interval:
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def remove(self, interval: ExclusionInterval):
-        """
-        removes intervals from the list
-        :param interval:
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def query_by_interval(self, interval: ExclusionInterval) -> List[ExclusionInterval]:
-        pass
-
-    @abstractmethod
-    def query_by_point(self, point: ExclusionPoint) -> List[ExclusionInterval]:
-        pass
-
-    @abstractmethod
-    def query_by_id(self, interval_id: Any) -> List[ExclusionInterval]:
-        pass
-
-    @abstractmethod
-    def is_excluded(self, point: ExclusionPoint) -> bool:
-        pass
-
-    @abstractmethod
-    def save(self, file_path: str):
-        pass
-
-    @abstractmethod
-    def load(self, file_path: str):
-        pass
-
-    @abstractmethod
-    def clear(self):
-        pass
-
-    @abstractmethod
-    def __len__(self):
-        pass
-
-
 def get_mass_interval(ex_interval: ExclusionInterval):
-    return Interval(convert_min_bounds(ex_interval.min_mass), convert_max_bounds(ex_interval.max_mass),
-                             ex_interval)
+    return Interval(convert_min_bounds(ex_interval.min_mass),
+                    convert_max_bounds(ex_interval.max_mass),
+                    ex_interval)
 
 
 @dataclass
-class MassIntervalTree(ExclusionList):
+class MassIntervalTree:
     """
     ExclusionList store excluded intervals. Excluded intervals or stored in a 1D IntervalTree based on mass.
     Therefore, only a single interval can be stored for each unique mass interval, adding another interval
@@ -120,7 +66,10 @@ class MassIntervalTree(ExclusionList):
         return []
 
     def is_excluded(self, point: ExclusionPoint) -> bool:
-        return len(self.query_by_point(point)) > 0
+
+        for point in self.query_by_point(point):
+            return True
+        return False
 
     def query_by_interval(self, ex_interval: ExclusionInterval) -> List[ExclusionInterval]:
         return [mass_interval.data for mass_interval in self._get_interval(ex_interval)]
@@ -131,7 +80,7 @@ class MassIntervalTree(ExclusionList):
         else:
             intervals = self.interval_tree[point.mass]
 
-        return [interval.data for interval in intervals if point.is_bounded_by(interval.data)]
+        return (interval.data for interval in intervals if point.is_bounded_by(interval.data))
 
     def query_by_id(self, interval_id: Any) -> List[ExclusionInterval]:
         return [interval.data for interval in self._get_intervals_by_id(interval_id)]

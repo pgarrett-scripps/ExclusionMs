@@ -49,61 +49,66 @@ point1 = ExclusionPoint(charge=1,
                         ook0=1000,
                         intensity=1000)
 
+point2 = ExclusionPoint(charge=1,
+                        mass=2000,
+                        rt=1000,
+                        ook0=1000,
+                        intensity=1000)
 
 class TestExclusionList(unittest.TestCase):
 
     def setUp(self) -> None:
-        exclusionms.apihandler.clear_active_exclusion_list(exclusion_api_ip=IP)
+        exclusionms.apihandler.clear(exclusion_api_ip=IP)
 
     def test_save_load(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
-        exclusionms.apihandler.save_active_exclusion_list(exclusion_api_ip=IP, exid='testingapi')
-        exclusionms.apihandler.clear_active_exclusion_list(exclusion_api_ip=IP)
-        exclusionms.apihandler.load_active_exclusion_list(exclusion_api_ip=IP, exid='testingapi')
-        intervals = exclusionms.apihandler.get_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        exclusionms.apihandler.save(exclusion_api_ip=IP, exid='testingapi')
+        exclusionms.apihandler.clear(exclusion_api_ip=IP)
+        exclusionms.apihandler.load(exclusion_api_ip=IP, exid='testingapi')
+        intervals = exclusionms.apihandler.search_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
         self.assertEqual(len(intervals), 1)
         self.assertEqual(intervals[0], interval1)
 
     def test_add_interval(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
 
     def test_get_interval(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
-        intervals = exclusionms.apihandler.get_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        intervals = exclusionms.apihandler.search_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
         self.assertEqual(len(intervals), 1)
         self.assertEqual(intervals[0], interval1)
 
     def test_get_multiple_interval(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval3)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval3)
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
+        intervals = exclusionms.apihandler.search_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
 
         self.assertEqual(len(intervals), 2)
         self.assertTrue(interval1 in intervals)
         self.assertTrue(interval3 in intervals)
 
     def test_delete_interval(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
-        intervals = exclusionms.apihandler.delete_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        intervals = exclusionms.apihandler.delete_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
         self.assertEqual(len(intervals), 1)
         self.assertEqual(intervals[0], interval1)
 
-        intervals = exclusionms.apihandler.delete_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
+        intervals = exclusionms.apihandler.delete_interval(exclusion_api_ip=IP, exclusion_interval=interval2)
         self.assertEqual(len(intervals), 0)
 
     def test_get_excluded_points(self):
-        exclusionms.apihandler.add_exclusion_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
-        excluded_flags = exclusionms.apihandler.get_excluded_points(exclusion_api_ip=IP,
-                                                                    exclusion_points=[point1, point1])
+        exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
+        excluded_flags = exclusionms.apihandler.exclusion_search_points(exclusion_api_ip=IP,
+                                                                    exclusion_points=[point1, point1, point2])
         self.assertEqual(len(excluded_flags), 2)
-        self.assertEqual(excluded_flags, [True, True])
+        self.assertEqual(excluded_flags, [True, True, False])
 
     def test_stats(self):
-        exclusionms.apihandler.make_stats_query(exclusion_api_ip=IP)
+        exclusionms.apihandler.get_statistics(exclusion_api_ip=IP)
 
     def test_get_excluded_interval(self):
-        exclusionms.apihandler.add_exclusion_interval(
+        exclusionms.apihandler.add_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id='PEPTIDE',
                                                  charge=None,
@@ -116,7 +121,7 @@ class TestExclusionList(unittest.TestCase):
                                                  min_intensity=None,
                                                  max_intensity=None))
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(
+        intervals = exclusionms.apihandler.search_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id=None,
                                                  charge=None,
@@ -130,7 +135,7 @@ class TestExclusionList(unittest.TestCase):
                                                  max_intensity=None))
         self.assertEqual(len(intervals), 1)
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(
+        intervals = exclusionms.apihandler.search_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id=None,
                                                  charge=None,
@@ -144,7 +149,7 @@ class TestExclusionList(unittest.TestCase):
                                                  max_intensity=None))
         self.assertEqual(len(intervals), 1)
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(
+        intervals = exclusionms.apihandler.search_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id=None,
                                                  charge=None,
@@ -158,7 +163,7 @@ class TestExclusionList(unittest.TestCase):
                                                  max_intensity=None))
         self.assertEqual(len(intervals), 0)
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(
+        intervals = exclusionms.apihandler.search_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id=None,
                                                  charge=1,
@@ -173,7 +178,7 @@ class TestExclusionList(unittest.TestCase):
         self.assertEqual(len(intervals), 1)
 
     def test_get_excluded_interval2(self):
-        exclusionms.apihandler.add_exclusion_interval(
+        exclusionms.apihandler.add_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id='PEPTIDE',
                                                  charge=1,
@@ -186,7 +191,7 @@ class TestExclusionList(unittest.TestCase):
                                                  min_intensity=None,
                                                  max_intensity=None))
 
-        intervals = exclusionms.apihandler.get_exclusion_interval(
+        intervals = exclusionms.apihandler.search_interval(
             exclusion_api_ip=IP,
             exclusion_interval=ExclusionInterval(interval_id=None,
                                                  charge=None,
@@ -199,6 +204,7 @@ class TestExclusionList(unittest.TestCase):
                                                  min_intensity=None,
                                                  max_intensity=None))
         self.assertEqual(len(intervals), 1)
+
 
 if __name__ == '__main__':
     unittest.main()
