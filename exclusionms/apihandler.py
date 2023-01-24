@@ -128,6 +128,7 @@ def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[Exclus
 
     return json.loads(response.content)
 
+
 def is_connected(exclusion_api_ip: str) -> bool:
     try:
         get_statistics(exclusion_api_ip)
