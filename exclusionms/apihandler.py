@@ -2,6 +2,7 @@ import json
 from typing import List, Dict
 
 import requests
+import ujson
 
 from .components import ExclusionPoint, ExclusionInterval
 
@@ -54,10 +55,15 @@ def add_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, t
     add_intervals(exclusion_api_ip, [exclusion_interval], timeout)
 
 
-def add_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None) -> None:
-    response = requests.post(url=f'{exclusion_api_ip}/exclusionms/intervals',
-                             json=[interval.dict() for interval in exclusion_intervals],
-                             timeout=timeout)
+def add_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None, use_ujson=False) -> None:
+    if use_ujson is True:
+        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/intervals',
+                                 data=ujson.dumps([interval.dict() for interval in exclusion_intervals]),
+                                 timeout=timeout)
+    else:
+        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/intervals',
+                                 json=[interval.dict() for interval in exclusion_intervals],
+                                 timeout=timeout)
     response.raise_for_status()
 
 
@@ -119,10 +125,15 @@ def exclusion_search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoin
     return exclusion_search_points(exclusion_api_ip, [exclusion_point], timeout)[0]
 
 
-def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None) -> List[bool]:
-    response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/exclusion_search',
-                             json=[point.dict() for point in exclusion_points],
-                             timeout=timeout)
+def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None, use_ujson=False) -> List[bool]:
+    if use_ujson is True:
+        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/exclusion_search',
+                                 data=ujson.dumps([point.dict() for point in exclusion_points]),
+                                 timeout=timeout)
+    else:
+        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/exclusion_search',
+                                 json=[point.dict() for point in exclusion_points],
+                                 timeout=timeout)
 
     response.raise_for_status()
 

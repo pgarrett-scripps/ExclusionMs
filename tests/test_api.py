@@ -101,7 +101,7 @@ class TestExclusionList(unittest.TestCase):
         exclusionms.apihandler.add_interval(exclusion_api_ip=IP, exclusion_interval=interval1)
         excluded_flags = exclusionms.apihandler.exclusion_search_points(exclusion_api_ip=IP,
                                                                     exclusion_points=[point1, point1, point2])
-        self.assertEqual(len(excluded_flags), 2)
+        self.assertEqual(len(excluded_flags), 3)
         self.assertEqual(excluded_flags, [True, True, False])
 
     def test_stats(self):

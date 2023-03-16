@@ -59,6 +59,20 @@ class ExclusionInterval(BaseModel):
 
         return True
 
+    def to_dict_rounded(self) -> Dict[str, Union[str, int, float]]:
+        return {
+            'interval_id': self.interval_id if self.interval_id is not None else None,
+            'charge': self.charge if self.charge is not None else None,
+            'min_mass': round(self.min_mass, 4) if self.min_mass is not None else None,
+            'max_mass': round(self.max_mass, 4) if self.max_mass is not None else None,
+            'min_rt': round(self.min_rt, 2) if self.min_rt is not None else None,
+            'max_rt': round(self.max_rt, 2) if self.max_rt is not None else None,
+            'min_ook0': round(self.min_ook0, 2) if self.min_ook0 is not None else None,
+            'max_ook0': round(self.max_ook0, 2) if self.max_ook0 is not None else None,
+            'min_intensity': round(self.min_intensity, 2) if self.min_intensity is not None else None,
+            'max_intensity': round(self.max_intensity, 2) if self.max_intensity is not None else None,
+        }
+
     def is_valid(self) -> bool:
         if convert_min_bounds(self.min_mass) > convert_max_bounds(self.max_mass):
             return False
