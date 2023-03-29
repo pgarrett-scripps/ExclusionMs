@@ -134,3 +134,7 @@ values as default bounds:
 
 By using None values in exclusion intervals, you can create more flexible and versatile exclusion rules that can 
 match a broader range of data points.
+
+## Exclusion Space Example
+
+![Image alt text](figures/exclusion_space.png?raw=true)
