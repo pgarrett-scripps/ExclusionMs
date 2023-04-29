@@ -138,3 +138,10 @@ match a broader range of data points.
 ## Exclusion Space Example
 
 ![Image alt text](figures/exclusion_space.png?raw=true)
+
+
+## Stress Tester
+stress_test.py is designed to stress test the ExclusionMS server by generating a large number of random points and 
+intervals, and then querying the server to check for exclusions. The script also plots the query processing time, 
+along with additional information such as the running average and interval addition events. The plot can be 
+updated in real-time or saved as a PNG file.

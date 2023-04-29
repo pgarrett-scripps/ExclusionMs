@@ -7,3 +7,10 @@
 - removed intensity tolerance log2foldchange
 - fixed interval.dict()
 - added Enum for Interval, Point, Tolernce keys
+0.2.0
+- added stress_tester.py
+- more api calls
+- timings callback for apihandler
+- basic logging
+- added random.py
+- moved version to __version__.py

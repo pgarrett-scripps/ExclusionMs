@@ -87,7 +87,7 @@ class MassIntervalTree:
 
     def save(self, file_path: str):
         """
-        Save a the interval tree as a pickled obj
+        Save the interval tree as a pickled obj
         """
         with open(file_path, "wb") as file:
             pickle.dump(self.interval_tree, file, -1)
@@ -112,6 +112,9 @@ class MassIntervalTree:
 
     def __len__(self):
         return len(self.interval_tree)
+
+    def __iter__(self):
+        return iter((interval.data for interval in self.interval_tree))
 
     def stats(self):
         return {'len': len(self),

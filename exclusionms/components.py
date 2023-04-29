@@ -1,6 +1,8 @@
 import ast
+import random
 import sys
-from typing import Union, Dict, Tuple
+import uuid
+from typing import Union, Dict, Tuple, Any
 from pydantic import BaseModel
 
 
@@ -35,6 +37,7 @@ class ExclusionInterval(BaseModel):
     max_ook0: Union[float, None]
     min_intensity: Union[float, None]
     max_intensity: Union[float, None]
+    data: Any = None
 
     def is_enveloped_by(self, other: 'ExclusionInterval') -> bool:
 
@@ -198,3 +201,4 @@ class DynamicExclusionTolerance(BaseModel):
         return ExclusionInterval(interval_id=interval_id, charge=charge, min_mass=min_mass,
                                  max_mass=max_mass, min_rt=min_rt, max_rt=max_rt, min_ook0=min_ook0,
                                  max_ook0=max_ook0, min_intensity=min_intensity, max_intensity=max_intensity)
+

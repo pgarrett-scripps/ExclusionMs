@@ -37,6 +37,13 @@ class TestExclusionList(unittest.TestCase):
         self.exlist.add(messages[0])
         self.assertEqual(1, len(self.exlist))
 
+    def test_iter(self):
+        self.exlist.add(messages[0])
+        self.assertEqual(1, len(self.exlist))
+
+        for i in self.exlist:
+            self.assertEqual(messages[0], i)
+
     def test_duplicate_add(self):
         self.exlist.add(messages[0])
         self.assertEqual(1, len(self.exlist))
