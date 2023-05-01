@@ -1,5 +1,7 @@
 import unittest
 
+import pytest
+
 import exclusionms.apihandler as hand
 from exclusionms.components import ExclusionInterval, ExclusionPoint
 
@@ -35,6 +37,7 @@ point1 = ExclusionPoint(charge=1,mass=1000.5,rt=None,ook0=1000.5,intensity=1000.
 
 class TestExclusionList(unittest.TestCase):
 
+    @pytest.mark.requires_api
     def test_clear(self):
         hand.clear(IP)
         self.assertEqual(0, hand.get_len(IP))
