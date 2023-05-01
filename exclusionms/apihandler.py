@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from dataclasses import dataclass
 from math import ceil
 from typing import List, Dict
 
@@ -67,7 +68,7 @@ def get_statistics(exclusion_api_ip: str, timeout=None) -> Dict:
 
 @timer_decorator
 def get_len(exclusion_api_ip: str, timeout=None) -> Dict:
-    return get_statistics(exclusion_api_ip)['len']
+    return get_statistics(exclusion_api_ip,timeout)['len']
 
 
 @timer_decorator
@@ -85,15 +86,7 @@ def add_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, t
 @timer_decorator
 def add_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None,
                   use_ujson=False, batch_size: int = None) -> None:
-    """
-    Add intervals to the exclusion API in batches.
 
-    :param exclusion_api_ip: The IP address of the exclusion API.
-    :param exclusion_intervals: A list of ExclusionInterval objects to add.
-    :param timeout: Optional timeout for the requests.
-    :param use_ujson: Whether to use ujson for data serialization.
-    :param batch_size: The number of intervals to send in a single batch. If not provided, all intervals are sent in one batch.
-    """
     if batch_size is None:
         batch_size = len(exclusion_intervals)
 
@@ -116,14 +109,18 @@ def add_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInte
         response.raise_for_status()
 
 
-def search_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[
-    ExclusionInterval]:
+def search_interval(exclusion_api_ip: str,
+                    exclusion_interval: ExclusionInterval,
+                    timeout=None) -> List[ExclusionInterval]:
+
     return search_intervals(exclusion_api_ip, [exclusion_interval], timeout)[0]
 
 
 @timer_decorator
-def search_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None) -> List[
-    List[ExclusionInterval]]:
+def search_intervals(exclusion_api_ip: str,
+                     exclusion_intervals: List[ExclusionInterval],
+                     timeout=None) -> List[List[ExclusionInterval]]:
+
     response = requests.post(url=f'{exclusion_api_ip}/exclusionms/intervals/search',
                              json=[interval.dict() for interval in exclusion_intervals],
                              timeout=timeout)
@@ -135,14 +132,18 @@ def search_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionI
     return exclusion_intervals
 
 
-def delete_interval(exclusion_api_ip: str, exclusion_interval: ExclusionInterval, timeout=None) -> List[
-    ExclusionInterval]:
+def delete_interval(exclusion_api_ip: str,
+                    exclusion_interval: ExclusionInterval,
+                    timeout=None) -> List[ExclusionInterval]:
+
     return delete_intervals(exclusion_api_ip, [exclusion_interval], timeout)[0]
 
 
 @timer_decorator
-def delete_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionInterval], timeout=None) -> \
-        List[List[ExclusionInterval]]:
+def delete_intervals(exclusion_api_ip: str,
+                     exclusion_intervals: List[ExclusionInterval],
+                     timeout=None) -> List[List[ExclusionInterval]]:
+
     response = requests.delete(url=f'{exclusion_api_ip}/exclusionms/intervals',
                                json=[interval.dict() for interval in exclusion_intervals],
                                timeout=timeout)
@@ -154,14 +155,18 @@ def delete_intervals(exclusion_api_ip: str, exclusion_intervals: List[ExclusionI
     return exclusion_intervals
 
 
-def search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoint, timeout=None) -> List[
-    ExclusionInterval]:
+def search_point(exclusion_api_ip: str,
+                 exclusion_point: ExclusionPoint,
+                 timeout=None) -> List[ExclusionInterval]:
+
     return search_points(exclusion_api_ip, [exclusion_point], timeout)[0]
 
 
 @timer_decorator
-def search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None) -> List[List[
-    ExclusionInterval]]:
+def search_points(exclusion_api_ip: str,
+                  exclusion_points: List[ExclusionPoint],
+                  timeout=None) -> List[List[ExclusionInterval]]:
+
     response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/search',
                              json=[point.dict() for point in exclusion_points],
                              timeout=timeout)
@@ -195,9 +200,9 @@ def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[Exclus
 
 
 @timer_decorator
-def is_connected(exclusion_api_ip: str) -> bool:
+def is_connected(exclusion_api_ip: str, timeout=None) -> bool:
     try:
-        get_statistics(exclusion_api_ip)
+        get_statistics(exclusion_api_ip, timeout)
     except requests.exceptions.ConnectionError:
         return False
 
@@ -205,16 +210,84 @@ def is_connected(exclusion_api_ip: str) -> bool:
 
 
 @timer_decorator
-def load_or_clear_exclusion_list(exid: str, exclusionms_ip: str):
-    available_exclusion_lists = get_files(exclusionms_ip)
+def load_or_clear_exclusion_list(exid: str, exclusionms_ip: str, timeout=None):
+    available_exclusion_lists = get_files(exclusionms_ip, timeout)
     if exid not in available_exclusion_lists:
-        clear(exclusionms_ip)
+        clear(exclusionms_ip, timeout)
     else:
-        load(exclusionms_ip, exid)
+        load(exclusionms_ip, exid, timeout)
 
 
 @timer_decorator
-def get_timings(exclusionms_ip: str, timeout=None) -> {}:
-    response = requests.get(url=f'{exclusionms_ip}/exclusionms/timing', timeout=timeout)
+def get_log_entries(exclusionms_ip: str, num_entries: int = 500, timeout=None) -> {}:
+    response = requests.get(url=f'{exclusionms_ip}/log/entries?num_entries={num_entries}', timeout=timeout)
     response.raise_for_status()
     return json.loads(response.content)
+
+
+@dataclass
+class Handler:
+    exclusion_api_ip: str
+    timeout: float
+    use_ujson: bool = False
+    batch_size: int = None
+
+    def clear(self) -> int:
+        return clear(self.exclusion_api_ip, self.timeout)
+
+    def load(self, exid: str):
+        return load(self.exclusion_api_ip, exid, self.timeout)
+
+    def save(self, exid: str):
+        return save(self.exclusion_api_ip, exid, self.timeout)
+
+    def delete(self, exid: str):
+        return delete(self.exclusion_api_ip, exid, self.timeout)
+
+    def get_statistics(self) -> Dict:
+        return get_statistics(self.exclusion_api_ip, self.timeout)
+
+    def get_len(self) -> Dict:
+        return get_len(self.exclusion_api_ip, self.timeout)
+
+    def get_files(self) -> Dict:
+        return get_files(self.exclusion_api_ip, self.timeout)
+
+    def add_interval(self, exclusion_interval: ExclusionInterval) -> None:
+        return add_interval(self.exclusion_api_ip, exclusion_interval)
+
+    def add_intervals(self, exclusion_intervals: List[ExclusionInterval]) -> None:
+        return add_intervals(self.exclusion_api_ip, exclusion_intervals, self.timeout, self.use_ujson, self.batch_size)
+
+    def search_interval(self, exclusion_interval: ExclusionInterval) -> List[ExclusionInterval]:
+        return search_interval(self.exclusion_api_ip, exclusion_interval, self.timeout)
+
+    def search_intervals(self, exclusion_intervals: List[ExclusionInterval]) -> List[ExclusionInterval]:
+        return search_intervals(self.exclusion_api_ip, exclusion_intervals, self.timeout)
+
+    def delete_interval(self, exclusion_interval: ExclusionInterval) -> List[ExclusionInterval]:
+        return delete_interval(self.exclusion_api_ip, exclusion_interval, self.timeout)
+
+    def delete_intervals(self, exclusion_intervals: List[ExclusionInterval]) -> List[List[ExclusionInterval]]:
+        return delete_intervals(self.exclusion_api_ip, exclusion_intervals, self.timeout)
+
+    def search_point(self, exclusion_point: ExclusionPoint) -> List[ExclusionInterval]:
+        return search_point(self.exclusion_api_ip, exclusion_point, self.timeout)
+
+    def search_points(self, exclusion_points: List[ExclusionPoint]) -> List[List[ExclusionInterval]]:
+        return search_points(self.exclusion_api_ip, exclusion_points, self.timeout)
+
+    def exclusion_search_point(self, exclusion_point: ExclusionPoint) -> bool:
+        return exclusion_search_point(self.exclusion_api_ip, exclusion_point, self.timeout)
+
+    def exclusion_search_points(self, exclusion_points: List[ExclusionPoint]) -> List[bool]:
+        return exclusion_search_points(self.exclusion_api_ip, exclusion_points, self.timeout)
+
+    def is_connected(self) -> bool:
+        return is_connected(self.exclusion_api_ip, self.timeout)
+
+    def load_or_clear_exclusion_list(self):
+        return load_or_clear_exclusion_list(self.exclusion_api_ip, self.timeout)
+
+    def get_log_entries(self) -> {}:
+        return search_intervals(self.exclusion_api_ip, self.timeout)

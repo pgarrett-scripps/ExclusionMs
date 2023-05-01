@@ -67,7 +67,7 @@ class MassIntervalTree:
 
     def is_excluded(self, point: ExclusionPoint) -> bool:
 
-        for point in self.query_by_point(point):
+        for _ in self.query_by_point(point):
             return True
         return False
 
@@ -80,7 +80,7 @@ class MassIntervalTree:
         else:
             intervals = self.interval_tree[point.mass]
 
-        return (interval.data for interval in intervals if point.is_bounded_by(interval.data))
+        return [interval.data for interval in intervals if point.is_bounded_by(interval.data)]
 
     def query_by_id(self, interval_id: Any) -> List[ExclusionInterval]:
         return [interval.data for interval in self._get_intervals_by_id(interval_id)]

@@ -14,11 +14,10 @@ import matplotlib.dates as mdates
 from matplotlib.lines import Line2D
 import matplotlib.patches as mpatches
 import numpy as np
-from exclusionms import apihandler
-from exclusionms.components import DynamicExclusionTolerance
+from . import apihandler
+from .components import DynamicExclusionTolerance
 
 stop_requested = False
-
 
 def random_point(charge_range, mass_range, rt_range, ook0_range, intensity_range):
     return exclusionms.random.generate_random_point(charge_range=charge_range, mass_range=mass_range, rt_range=rt_range,

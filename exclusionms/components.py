@@ -97,6 +97,12 @@ class ExclusionInterval(BaseModel):
         exclusion_interval = ExclusionInterval(**res)
         return exclusion_interval
 
+    def contains_point(self, point: 'ExclusionPoint') -> bool:
+        """
+        Check if point given by is_excluded() is within interval
+        """
+        return point.is_bounded_by(interval=self)
+
 
 class ExclusionPoint(BaseModel):
     """
@@ -201,4 +207,3 @@ class DynamicExclusionTolerance(BaseModel):
         return ExclusionInterval(interval_id=interval_id, charge=charge, min_mass=min_mass,
                                  max_mass=max_mass, min_rt=min_rt, max_rt=max_rt, min_ook0=min_ook0,
                                  max_ook0=max_ook0, min_intensity=min_intensity, max_intensity=max_intensity)
-

@@ -1,5 +1,5 @@
 from setuptools import setup
-from exclusionms.__version__ import __version__
+from exclusionms import __version__
 
 setup(
     name='exclusionms',
