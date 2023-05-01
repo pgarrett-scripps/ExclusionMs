@@ -41,3 +41,6 @@ version = {attr = "exclusionms.__version__"}
 [tool.pylint]
 max-line-length = 120
 fail-under = 9.5
+extension-pkg-allow-list = "ujson"
+good-names = ["mz", "rt", "ax", "p"]
+extension-pkg-whitelist='pydantic'

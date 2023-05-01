@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Handler class to exclusionms.apihandler to allow for a single declaration of the exclusioms ip and args
 - More tests
 - Added MIT license
+- Documentation
 
 ### Changed
 - Moved version to init
