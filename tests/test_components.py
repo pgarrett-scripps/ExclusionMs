@@ -458,3 +458,6 @@ class TestExclusionList(unittest.TestCase):
                                   max_ook0=1000,
                                   min_intensity=999,
                                   max_intensity=1000)))
+
+if __name__ == '__main__':
+    unittest.main()

@@ -2,51 +2,6 @@
 requires = ["setuptools"]
 
 [project]
-name = "filterframes"
-authors = [
-    {name = "Patrick Garrett", email = "pgarrett@scripps.edu"},
-]
-description = "A very simple DTASelect-Filter.txt parser."
-readme = "README.md"
-requires-python = ">=3.8"
-dynamic = ["version"]
-license = {file = "LICENSE"}
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-dependencies = [
-    "pandas",
-]
-keywords = ["IP2", "PASER", "Parser", "Streamlit", "DTASelect-filter", "Peptide", "Protein", "Proteomics"]
-
-[project.urls]
-repository = "https://github.com/pgarrett-scripps/FilterFrames.git"
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.dynamic]
-version = {attr = "filterframes.__version__"}
-
-[tool.pylint]
-max-line-length = 120
-fail-under = 9.5
-
-
-
-
-
-
-
-
-
-[build-system]
-requires = ["setuptools"]
-
-[project]
 name = "exclusionms"
 dynamic = ["version"]
 description = "Python package for working with exclusionms-api and exclusionms-streamlit"
@@ -60,19 +15,29 @@ dependencies = [
     "ujson",
     "matplotlib",
     "numpy",
-
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
 readme = "README.md"
 requires-python = ">=3.8"
+license = {file = "LICENSE"}
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [project.urls]
-home = ""
-
-[project.licenses]
-"""
-
-"""
-
+home = "https://github.com/pgarrett-scripps/ExclusionMs.git"
 
 [project.scripts]
 stress_tester = "exclusionms.stress_tester:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "exclusionms.__version__"}
+
+[tool.pylint]
+max-line-length = 120
+fail-under = 9.5

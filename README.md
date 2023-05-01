@@ -3,16 +3,6 @@ This Python package provides a way to manage and query exclusion intervals. It u
 IntervalTree to efficiently store exclusion intervals based on their neutral mass
 and perform various operations on them. 
 
-## Features
-- Define exclusion intervals with various attributes such as mass, retention time, intensity, and charge
-- Efficiently store and manage exclusion intervals using an IntervalTree data structure
-- Query exclusion intervals by ID, mass interval, or a specific data point
-- Check if a data point is excluded by any of the intervals in the tree
-- Add and remove exclusion intervals
-- Save and load exclusion interval trees to/from a file using pickle
-- Clear all data in the interval tree
-
-
 ## Installation
 To use this library, simply download or clone the repository and import the necessary classes and functions in your 
 Python project.
@@ -134,11 +124,6 @@ values as default bounds:
 
 By using None values in exclusion intervals, you can create more flexible and versatile exclusion rules that can 
 match a broader range of data points.
-
-## Exclusion Space Example
-
-![Image alt text](figures/exclusion_space.png?raw=true)
-
 
 ## Stress Tester
 stress_test.py is designed to stress test the ExclusionMS server by generating a large number of random points and 
