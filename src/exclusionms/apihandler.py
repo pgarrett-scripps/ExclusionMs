@@ -469,7 +469,7 @@ def get_log_entries(exclusionms_ip: str, num_entries: int = 500, timeout=None) -
         HTTPError: If the API request returns an error status code.
 
     """
-    response = requests.get(url=f'{exclusionms_ip}/log/entries?num_entries={num_entries}', timeout=timeout)
+    response = requests.get(url=f'{exclusionms_ip}/logs/entries?num_entries={num_entries}', timeout=timeout)
     response.raise_for_status()
     return json.loads(response.content)
 

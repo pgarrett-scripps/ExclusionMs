@@ -11,8 +11,9 @@ All notable changes to this project will be documented in this file.
 - Added exclusionms.random module to aid in making random exclusion interval and points
 - Handler class to exclusionms.apihandler to allow for a single declaration of the exclusioms ip and args
 - More tests
-- Added MIT license
+- MIT license
 - Documentation
+- Pylint and Pytest github actions
 
 ### Changed
 - Moved version to init

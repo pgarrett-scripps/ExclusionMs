@@ -42,7 +42,7 @@ def convert_min_bounds(min_bound: Union[float, None]) -> float:
         float: The minimum bound value as a float.
     """
     if min_bound is None:
-        return -sys.float_info.max
+        return float('-inf')
     return min_bound
 
 
@@ -61,7 +61,7 @@ def convert_max_bounds(max_bound: Union[float, None]) -> float:
         float: The maximum bound value as a float.
     """
     if max_bound is None:
-        return sys.float_info.max
+        return float('inf')
     return max_bound
 
 

@@ -33,7 +33,7 @@ package-dir = {"" = "src"}
 home = "https://github.com/pgarrett-scripps/ExclusionMs.git"
 
 [project.scripts]
-stress_tester = "exclusionms.stress_tester:main"
+stress_test = "exclusionms.stress_test:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "exclusionms.__version__"}

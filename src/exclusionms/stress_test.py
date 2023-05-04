@@ -211,14 +211,61 @@ def wait_for_intervals(exclusion_api_ip: str, num_intervals: int, timeout: int =
     return False
 
 
-def main(args):
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description='ExclusionMS real-time plotting script.')
+
+    # Stress Tests Arguments
+    parser.add_argument('--exclusion_api_ip', type=str, default='http://127.0.0.1:8000',
+                        help='IP address of the ExclusionMS server.')
+    parser.add_argument('--num_intervals', type=int, default=100000,
+                        help='Number of intervals to add.')
+    parser.add_argument('--point_delay', type=float, default=0.1,
+                        help='Time in seconds between adding points.')
+    parser.add_argument('--num_points', type=float, default=1000,
+                        help='Number of points to search per query')
+    parser.add_argument('--num_additional_intervals', type=int, default=100,
+                        help='Additional intervals to add during runtime')
+    parser.add_argument('--additional_interval_delay', type=float, default=1,
+                        help='Additional intervals to add during runtime')
+    parser.add_argument('--run_time', type=float, default=30,
+                        help='Length of time to run the stress test for.')
+    parser.add_argument('--realtime_plot', type=bool, default=True,
+                        help='plot stress test data in real time')
+
+    # Random Arguments
+    parser.add_argument('--charge_range', metavar=('MIN', 'MAX'), type=int, nargs=2, default=[1, 5],
+                        help='range of charges (default: 1 to 5)')
+    parser.add_argument('--mass_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[500.0, 700.0],
+                        help='range of masses (default: 500 to 5000)')
+    parser.add_argument('--rt_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[0.0, 1000.0],
+                        help='range of retention times (default: 0 to 10000)')
+    parser.add_argument('--ook0_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[0.5, 1.5],
+                        help='range of OOK0 values (default: 0.5 to 1.5)')
+    parser.add_argument('--intensity_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[500.0, 50000.0],
+                        help='range of intensities (default: 500 to 50000)')
+
+    # Tolerance Arguments
+    parser.add_argument('--charge_tolerance', type=bool, default=False,
+                        help='charge tolerance value (default: False)')
+    parser.add_argument('--mass_tolerance', type=float, default=5,
+                        help='mass tolerance value (default: 5)')
+    parser.add_argument('--rt_tolerance', type=float, default=100,
+                        help='retention time tolerance value (default: 1000)')
+    parser.add_argument('--ook0_tolerance', type=float, default=None,
+                        help='OOK0 tolerance value (default: None)')
+    parser.add_argument('--intensity_tolerance', type=float, default=None,
+                        help='intensity tolerance value (default: None)')
+    args = parser.parse_args()
+    return args
+
+
+def main():
     """
     Main function for the script. It clears the intervals, adds random intervals, updates the plot, and saves the plot.
-
-    Args:
-        args (argparse.Namespace): Parsed command line arguments.
     """
-    title = f"ExclusionMS Size: {args.num_intervals}, Num Points: {args.num_points}, Query Delay: {args.point_delay}, "\
+
+    args = parse_args()
+    title = f"ExclusionMS Size: {args.num_intervals}, Num Points: {args.num_points}, Query Delay: {args.point_delay}, " \
             f"Additional Intervals: {args.num_additional_intervals}, Interval Delay: {args.additional_interval_delay}"
     file_name = title.replace(':', '_').replace(',', '_').replace(' ', '')
     png_file = file_name + '.png'
@@ -313,49 +360,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='ExclusionMS real-time plotting script.')
-
-    # Stress Tests Arguments
-    parser.add_argument('--exclusion_api_ip', type=str, default='http://127.0.0.1:8000',
-                        help='IP address of the ExclusionMS server.')
-    parser.add_argument('--num_intervals', type=int, default=100000,
-                        help='Number of intervals to add.')
-    parser.add_argument('--point_delay', type=float, default=0.1,
-                        help='Time in seconds between adding points.')
-    parser.add_argument('--num_points', type=float, default=1000,
-                        help='Number of points to search per query')
-    parser.add_argument('--num_additional_intervals', type=int, default=100,
-                        help='Additional intervals to add during runtime')
-    parser.add_argument('--additional_interval_delay', type=float, default=1,
-                        help='Additional intervals to add during runtime')
-    parser.add_argument('--run_time', type=float, default=30,
-                        help='Length of time to run the stress test for.')
-    parser.add_argument('--realtime_plot', type=bool, default=True,
-                        help='plot stress test data in real time')
-
-    # Random Arguments
-    parser.add_argument('--charge_range', metavar=('MIN', 'MAX'), type=int, nargs=2, default=[1, 5],
-                        help='range of charges (default: 1 to 5)')
-    parser.add_argument('--mass_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[500.0, 700.0],
-                        help='range of masses (default: 500 to 5000)')
-    parser.add_argument('--rt_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[0.0, 1000.0],
-                        help='range of retention times (default: 0 to 10000)')
-    parser.add_argument('--ook0_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[0.5, 1.5],
-                        help='range of OOK0 values (default: 0.5 to 1.5)')
-    parser.add_argument('--intensity_range', metavar=('MIN', 'MAX'), type=float, nargs=2, default=[500.0, 50000.0],
-                        help='range of intensities (default: 500 to 50000)')
-
-    # Tolerance Arguments
-    parser.add_argument('--charge_tolerance', type=bool, default=False,
-                        help='charge tolerance value (default: False)')
-    parser.add_argument('--mass_tolerance', type=float, default=5,
-                        help='mass tolerance value (default: 5)')
-    parser.add_argument('--rt_tolerance', type=float, default=100,
-                        help='retention time tolerance value (default: 1000)')
-    parser.add_argument('--ook0_tolerance', type=float, default=None,
-                        help='OOK0 tolerance value (default: None)')
-    parser.add_argument('--intensity_tolerance', type=float, default=None,
-                        help='intensity tolerance value (default: None)')
-    args = parser.parse_args()
-
-    main(args)
+    main()
