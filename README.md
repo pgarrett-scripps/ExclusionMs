@@ -1,3 +1,6 @@
+![example workflow](https://github.com/pgarrett-scripps/ExclusionMs/actions/workflows/python-package.yml/badge.svg)
+![example workflow](https://github.com/pgarrett-scripps/ExclusionMs/actions/workflows/pylint.yml/badge.svg)
+
 # ExclusionMS Package
 This Python package provides a way to manage and query exclusion intervals. It uses a 1-dimensional 
 IntervalTree to efficiently store exclusion intervals based on their neutral mass
