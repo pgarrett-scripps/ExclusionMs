@@ -568,4 +568,4 @@ class Handler:
 
     def get_log_entries(self) -> {}:
         """Calls equivalent apihandler function with the Handlers attributes"""
-        return search_intervals(self.exclusion_api_ip, self.timeout)
+        return get_log_entries(self.exclusion_api_ip, self.timeout)
