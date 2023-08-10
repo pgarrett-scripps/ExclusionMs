@@ -101,6 +101,11 @@ class MassIntervalTree:
         return intervals
 
     def remove_by_uuid(self, interval_uuid: str) -> ExclusionInterval:
+        """
+        Remove an ExclusionInterval from the tree by its UUID.
+        :param interval_uuid: uuid of the interval to be removed.
+        :return: Exclusion interval that was removed
+        """
 
         if interval_uuid not in self.uuid_dict:
             raise ValueError(f'No interval with UUID: {interval_uuid}')
@@ -219,10 +224,10 @@ class MassIntervalTree:
 
         if all(exclusion_flags):
             return IntervalStatus.EXCLUDED
-        elif not any(exclusion_flags):
+        if not any(exclusion_flags):
             return IntervalStatus.INCLUDED
-        else:
-            return IntervalStatus.EXCLUDED_INCLUDED
+
+        return IntervalStatus.EXCLUDED_INCLUDED
 
     def query_by_interval(self, ex_interval: ExclusionInterval) -> List[ExclusionInterval]:
         """

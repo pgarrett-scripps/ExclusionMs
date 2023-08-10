@@ -212,6 +212,9 @@ def wait_for_intervals(exclusion_api_ip: str, num_intervals: int, timeout: int =
 
 
 def parse_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+    """
     parser = argparse.ArgumentParser(description='ExclusionMS real-time plotting script.')
 
     # Stress Tests Arguments
@@ -272,7 +275,7 @@ def main():
     """
 
     args = parse_args()
-    title = f"ExclusionMS Size: {args.num_intervals}, Num Points: {args.num_points}, Query Delay: {args.point_delay}, " \
+    title = f"ExclusionMS Size: {args.num_intervals}, Num Points: {args.num_points}, Query Delay: {args.point_delay}, "\
             f"Additional Intervals: {args.num_additional_intervals}, Interval Delay: {args.additional_interval_delay}"
     file_name = title.replace(':', '_').replace(',', '_').replace(' ', '')
     png_file = file_name + '.png'
@@ -343,7 +346,8 @@ def main():
             log.info("Stopping after %s seconds of operation.", args.run_time)
             break
 
-        exclusions = apihandler.exclusion_search_points(exclusion_api_ip=args.exclusion_api_ip, exclusion_points=points, batch=args.batch)
+        exclusions = apihandler.exclusion_search_points(exclusion_api_ip=args.exclusion_api_ip,
+                                                        exclusion_points=points, batch=args.batch)
         percent_excluded = len([e for e in exclusions if e is True]) / len(exclusions)
         log.info("excluded: %.2f%% of the queried points", percent_excluded * 100)
 

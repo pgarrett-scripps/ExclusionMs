@@ -52,11 +52,11 @@ def generate_random_interval(exclusion_tolerance: DynamicExclusionTolerance,
     Args:
         exclusion_tolerance (DynamicExclusionTolerance): The exclusion tolerance used to construct the interval.
         interval_id (str, optional): The ID of the interval. If not provided, a random UUID will be used. Default: None
-        charge_range (Tuple[int, int], optional): Range of charge values for the interval points. Default: None
-        mass_range (Tuple[float, float], optional): Range of mass values for the interval points. Default: None
-        rt_range (Tuple[float, float], optional): Range of retention time values for the interval points. Default: None
-        ook0_range (Tuple[float, float], optional): Range of ook0 values for the interval points. Default: None
-        intensity_range (Tuple[float, float], optional): Range of intensity values for the interval points. Default: None
+        charge_range (Tuple[int, int], optional): Range of charges for the interval points. Default: None
+        mass_range (Tuple[float, float], optional): Range of masses for the interval points. Default: None
+        rt_range (Tuple[float, float], optional): Range of retention times for the interval points. Default: None
+        ook0_range (Tuple[float, float], optional): Range of ook0s for the interval points. Default: None
+        intensity_range (Tuple[float, float], optional): Range of intensities for the interval points. Default: None
 
     Returns:
         ExclusionInterval: The generated random ExclusionInterval object.

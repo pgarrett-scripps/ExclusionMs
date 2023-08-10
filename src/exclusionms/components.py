@@ -85,7 +85,10 @@ class ExclusionInterval(BaseModel):
     data: Any = None
     interval_uuid: str = None
 
-    def generate_uuid(self):
+    def generate_uuid(self) -> None:
+        """
+        Generates and assigns a UUID for the ExclusionInterval.
+        """
         self.interval_uuid = str(uuid.uuid4())
 
     def __eq__(self, other):
@@ -314,8 +317,8 @@ class ExclusionPointBatchMessage(BaseModel):
         :return: A list of ExclusionPoint objects.
         """
         points = []
-        for c, m, r, o, i in zip(self.charge, self.mass, self.rt, self.ook0, self.intensity):
-            points.append(ExclusionPoint(charge=c, mass=m, rt=r, ook0=o, intensity=i))
+        for charge, mass, rt, ook0, intensity in zip(self.charge, self.mass, self.rt, self.ook0, self.intensity):
+            points.append(ExclusionPoint(charge=charge, mass=mass, rt=rt, ook0=ook0, intensity=intensity))
         return points
 
     @staticmethod
