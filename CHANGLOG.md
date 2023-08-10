@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0]
+### Added
+- added exclusion flag to ExclusionInterval
+- added IntervalStatus enum, is_included, and point_status functions to db
+- added ExclusionPointBatchMessage 
+- added equal and uuid to ExclusionInterval
+- added new api calls to apihandler
+
 ## [0.2.1]
 ### Changed
 - bug fixes

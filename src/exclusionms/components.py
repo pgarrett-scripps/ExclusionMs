@@ -20,10 +20,9 @@ These classes provide methods for creating instances from serialized strings or 
 if points are bounded by intervals, and constructing new intervals based on dynamic exclusion tolerances.
 """
 
-
 import ast
-import sys
-from typing import Union, Dict, Tuple, Any
+import uuid
+from typing import Union, Dict, Tuple, Any, List
 from pydantic import BaseModel
 
 
@@ -82,7 +81,38 @@ class ExclusionInterval(BaseModel):
     max_ook0: Union[float, None]
     min_intensity: Union[float, None]
     max_intensity: Union[float, None]
+    exclusion: bool = True
     data: Any = None
+    interval_uuid: str = None
+
+    def generate_uuid(self):
+        self.interval_uuid = str(uuid.uuid4())
+
+    def __eq__(self, other):
+        if isinstance(other, ExclusionInterval):
+
+            # UUID will be checked if both intervals contain valid UUID, else this will be skipped
+            uuid_flags = [self.interval_uuid is not None, other.interval_uuid is not None]
+            if all(uuid_flags):
+                uuid_comp = self.interval_uuid == other.interval_uuid
+            else:
+                uuid_comp = True
+
+            return (
+                self.charge == other.charge and
+                self.min_mass == other.min_mass and
+                self.max_mass == other.max_mass and
+                self.min_rt == other.min_rt and
+                self.max_rt == other.max_rt and
+                self.min_ook0 == other.min_ook0 and
+                self.max_ook0 == other.max_ook0 and
+                self.min_intensity == other.min_intensity and
+                self.max_intensity == other.max_intensity and
+                self.exclusion == other.exclusion and
+                self.data == self.data and
+                uuid_comp
+            )
+        return False
 
     def is_enveloped_by(self, other: 'ExclusionInterval') -> bool:
         """
@@ -129,6 +159,10 @@ class ExclusionInterval(BaseModel):
             'max_ook0': round(self.max_ook0, 2) if self.max_ook0 is not None else None,
             'min_intensity': round(self.min_intensity, 2) if self.min_intensity is not None else None,
             'max_intensity': round(self.max_intensity, 2) if self.max_intensity is not None else None,
+            'exclusion': str(self.exclusion),
+            'data': str(self.data) if self.data is not None else None,
+            'interval_uuid': str(self.interval_uuid),
+
         }
 
     def is_valid(self) -> bool:
@@ -221,6 +255,27 @@ class ExclusionPoint(BaseModel):
 
         return True
 
+    def is_bounded_by_quick(self, interval: ExclusionInterval) -> bool:
+        """
+        Check if the ExclusionPoint is within the given ExclusionInterval.
+
+        :param interval: An ExclusionInterval instance to check against.
+        :return: True if the point is within the interval, False otherwise.
+        """
+
+        if self.charge is not None and interval.charge is not None and self.charge != interval.charge:
+            return False
+
+        for attribute in ['rt', 'ook0', 'intensity']:
+            value = getattr(self, attribute)
+            if value is not None:
+                min_bound = convert_min_bounds(getattr(interval, 'min_' + attribute))
+                max_bound = convert_max_bounds(getattr(interval, 'max_' + attribute))
+                if value < min_bound or value >= max_bound:
+                    return False
+
+        return True
+
     @staticmethod
     def from_str(serialized_point: str) -> 'ExclusionPoint':
         """
@@ -241,6 +296,47 @@ class ExclusionPoint(BaseModel):
         :return: An ExclusionPoint instance.
         """
         return ExclusionPoint(**res)
+
+
+class ExclusionPointBatchMessage(BaseModel):
+    """
+    Represents a batch of ExclusionPoint objects. This class is used to serialize and deserialize
+    """
+    charge: List[Union[int, None]]
+    mass: List[Union[float, None]]
+    rt: List[Union[float, None]]
+    ook0: List[Union[float, None]]
+    intensity: List[Union[float, None]]
+
+    def construct_points(self) -> List[ExclusionPoint]:
+        """
+        Construct a list of ExclusionPoint objects from the batch message.
+        :return: A list of ExclusionPoint objects.
+        """
+        points = []
+        for c, m, r, o, i in zip(self.charge, self.mass, self.rt, self.ook0, self.intensity):
+            points.append(ExclusionPoint(charge=c, mass=m, rt=r, ook0=o, intensity=i))
+        return points
+
+    @staticmethod
+    def create(points: List[ExclusionPoint]) -> 'ExclusionPointBatchMessage':
+        """
+        Create an ExclusionPointBatchMessage from a list of ExclusionPoint objects.
+        :param points: A list of ExclusionPoint objects.
+        :return: An ExclusionPointBatchMessage instance.
+        """
+        charge = []
+        mass = []
+        rt = []
+        ook0 = []
+        intensity = []
+        for point in points:
+            charge.append(point.charge)
+            mass.append(point.mass)
+            rt.append(point.rt)
+            ook0.append(point.ook0)
+            intensity.append(point.intensity)
+        return ExclusionPointBatchMessage(charge=charge, mass=mass, rt=rt, ook0=ook0, intensity=intensity)
 
 
 class DynamicExclusionTolerance(BaseModel):

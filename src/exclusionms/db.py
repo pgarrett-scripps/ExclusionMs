@@ -7,11 +7,18 @@ ExclusionIntervals to mass intervals and querying the MassIntervalTree.
 
 import pickle
 from dataclasses import dataclass, field
-from typing import Dict, Any, List
-
+from enum import IntEnum
+from typing import Dict, Any, List, Generator
 from intervaltree import IntervalTree, Interval
 
 from .components import ExclusionInterval, ExclusionPoint, convert_min_bounds, convert_max_bounds
+
+
+class IntervalStatus(IntEnum):
+    NO_INTERVALS_FOUND = -1
+    EXCLUDED = 0
+    INCLUDED = 1
+    EXCLUDED_INCLUDED = 2
 
 
 def get_mass_interval(ex_interval: ExclusionInterval):
@@ -41,10 +48,12 @@ class MassIntervalTree:
 
     interval_tree: IntervalTree = field(default_factory=IntervalTree)
     id_dict: Dict[str, set] = field(default_factory=dict)
+    uuid_dict: Dict[str, ExclusionInterval] = field(default_factory=dict)
 
     def add(self, ex_interval: ExclusionInterval):
         """
-           Add an ExclusionInterval to the tree.
+           Add an ExclusionInterval to the tree. A Unique UUID will be generated for each valid exclusion interval.
+
 
            Args:
                ex_interval (ExclusionInterval): The exclusion interval to be added.
@@ -54,9 +63,13 @@ class MassIntervalTree:
         """
         if ex_interval.interval_id is None:
             raise ValueError('Cannot add an interval with id = None')
+
+        ex_interval.generate_uuid()
+
         mass_interval = get_mass_interval(ex_interval)
         self.interval_tree.add(mass_interval)
         self.id_dict.setdefault(ex_interval.interval_id, set()).add(mass_interval)
+        self.uuid_dict[ex_interval.interval_uuid] = ex_interval
 
     def remove(self, ex_interval: ExclusionInterval) -> List[ExclusionInterval]:
         """
@@ -69,6 +82,8 @@ class MassIntervalTree:
                 List[ExclusionInterval]: A list of removed exclusion intervals.
         """
         mass_intervals = self._get_interval(ex_interval)
+        intervals = [mass_interval.data for mass_interval in mass_intervals]
+
         if mass_intervals is None:
             return []
 
@@ -77,8 +92,28 @@ class MassIntervalTree:
 
         for mass_interval in mass_intervals:
             self.id_dict[mass_interval.data.interval_id].remove(mass_interval)
+            if len(self.id_dict[mass_interval.data.interval_id]) == 0:
+                self.id_dict.pop(mass_interval.data.interval_id)
 
-        return [mass_interval.data for mass_interval in mass_intervals]
+        for interval in intervals:
+            self.uuid_dict.pop(interval.interval_uuid)
+
+        return intervals
+
+    def remove_by_uuid(self, interval_uuid: str) -> ExclusionInterval:
+
+        if interval_uuid not in self.uuid_dict:
+            raise ValueError(f'No interval with UUID: {interval_uuid}')
+
+        interval = self.uuid_dict[interval_uuid]
+        mass_interval = get_mass_interval(interval)
+        self.interval_tree.remove(mass_interval)
+        self.id_dict[interval.interval_id].remove(mass_interval)
+        if len(self.id_dict[interval.interval_id]) == 0:
+            self.id_dict.pop(interval.interval_id)
+        self.uuid_dict.pop(interval.interval_uuid)
+
+        return interval
 
     def _get_interval(self, ex_interval: ExclusionInterval) -> List[Interval]:
         """
@@ -140,8 +175,54 @@ class MassIntervalTree:
                 bool: True if the point is excluded by any of the intervals, False otherwise.
         """
         for _ in self.query_by_point(point):
-            return True
+            if _.exclusion is True:
+                return True
         return False
+
+    def is_included(self, point: ExclusionPoint) -> bool:
+        """
+            Check if a point is included by any of the exclusion intervals.
+
+            Args:
+                point (ExclusionPoint): The point to be checked.
+
+            Returns:
+                bool: True if the point is excluded by any of the intervals, False otherwise.
+        """
+        for _ in self.query_by_point(point):
+            if _.exclusion is False:
+                return True
+        return False
+
+    def point_status(self, point: ExclusionPoint) -> int:
+        """
+        Check the status of an exclusion point.
+
+        0 - No intervals found
+        1 - excluded
+        2 - included
+        3 - excluded + included
+
+        Args:
+            point (ExclusionPoint): The point to be checked.
+
+        Returns:
+            IntervalStatus: The status of the exclusion point.
+        """
+
+        intervals = list(self.query_by_point(point))
+
+        if len(intervals) == 0:
+            return IntervalStatus.NO_INTERVALS_FOUND
+
+        exclusion_flags = [interval.exclusion for interval in intervals]
+
+        if all(exclusion_flags):
+            return IntervalStatus.EXCLUDED
+        elif not any(exclusion_flags):
+            return IntervalStatus.INCLUDED
+        else:
+            return IntervalStatus.EXCLUDED_INCLUDED
 
     def query_by_interval(self, ex_interval: ExclusionInterval) -> List[ExclusionInterval]:
         """
@@ -155,7 +236,7 @@ class MassIntervalTree:
         """
         return [mass_interval.data for mass_interval in self._get_interval(ex_interval)]
 
-    def query_by_point(self, point: ExclusionPoint) -> List[ExclusionInterval]:
+    def query_by_point(self, point: ExclusionPoint) -> Generator[ExclusionInterval, None, None]:
         """
             Get a list of exclusion intervals that exclude the given point.
 
@@ -170,7 +251,7 @@ class MassIntervalTree:
         else:
             intervals = self.interval_tree[point.mass]
 
-        return [interval.data for interval in intervals if point.is_bounded_by(interval.data)]
+        return (interval.data for interval in intervals if point.is_bounded_by_quick(interval.data))
 
     def query_by_id(self, interval_id: Any) -> List[ExclusionInterval]:
         """
@@ -214,6 +295,7 @@ class MassIntervalTree:
         """
         self.interval_tree.clear()
         self.id_dict = {}
+        self.uuid_dict = {}
 
     def __len__(self):
         """
@@ -240,6 +322,7 @@ class MassIntervalTree:
         Returns:
             Dict[str, Any]: A dictionary containing statistics about the tree.
         """
-        return {'len': len(self),
-                'id_table_len': sum((len(self.id_dict[key]) for key in self.id_dict)),
+        return {'interval_tree': len(self),
+                'id_dict': sum((len(self.id_dict[key]) for key in self.id_dict)),
+                'uuid_dict': len(self.uuid_dict),
                 'class': str(type(self))}

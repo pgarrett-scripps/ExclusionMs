@@ -221,7 +221,7 @@ def parse_args() -> argparse.Namespace:
                         help='Number of intervals to add.')
     parser.add_argument('--point_delay', type=float, default=0.1,
                         help='Time in seconds between adding points.')
-    parser.add_argument('--num_points', type=float, default=1000,
+    parser.add_argument('--num_points', type=int, default=1000,
                         help='Number of points to search per query')
     parser.add_argument('--num_additional_intervals', type=int, default=100,
                         help='Additional intervals to add during runtime')
@@ -229,8 +229,15 @@ def parse_args() -> argparse.Namespace:
                         help='Additional intervals to add during runtime')
     parser.add_argument('--run_time', type=float, default=30,
                         help='Length of time to run the stress test for.')
-    parser.add_argument('--realtime_plot', type=bool, default=True,
+    parser.add_argument('--realtime_plot', action='store_true', default=True,
                         help='plot stress test data in real time')
+    parser.add_argument('--no_realtime_plot', dest='realtime_plot', action='store_false',
+                        help='do not plot stress test data in real time')
+
+    parser.add_argument('--batch', action='store_true', default=True,
+                        help='use batch msg instead of points')
+    parser.add_argument('--no_batch', dest='batch', action='store_false',
+                        help='do not use batch msg instead of points')
 
     # Random Arguments
     parser.add_argument('--charge_range', metavar=('MIN', 'MAX'), type=int, nargs=2, default=[1, 5],
@@ -336,7 +343,7 @@ def main():
             log.info("Stopping after %s seconds of operation.", args.run_time)
             break
 
-        exclusions = apihandler.exclusion_search_points(exclusion_api_ip=args.exclusion_api_ip, exclusion_points=points)
+        exclusions = apihandler.exclusion_search_points(exclusion_api_ip=args.exclusion_api_ip, exclusion_points=points, batch=args.batch)
         percent_excluded = len([e for e in exclusions if e is True]) / len(exclusions)
         log.info("excluded: %.2f%% of the queried points", percent_excluded * 100)
 

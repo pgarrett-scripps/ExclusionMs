@@ -389,7 +389,6 @@ class TestExclusionList(unittest.TestCase):
                                   max_intensity=None)))
 
     def test_none_point_is_bounded_by_interval(self):
-
         self.assertTrue(
             ExclusionInterval(interval_id=None,
                               charge=1,
@@ -458,6 +457,7 @@ class TestExclusionList(unittest.TestCase):
                                   max_ook0=1000,
                                   min_intensity=999,
                                   max_intensity=1000)))
+
 
 if __name__ == '__main__':
     unittest.main()

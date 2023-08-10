@@ -14,7 +14,7 @@ from functools import wraps
 import requests
 import ujson
 
-from .components import ExclusionPoint, ExclusionInterval
+from .components import ExclusionPoint, ExclusionInterval, ExclusionPointBatchMessage
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +29,7 @@ def timer_decorator(func):
         A wrapper function that measures the execution time of the decorated function.
 
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.perf_counter()
@@ -153,7 +154,7 @@ def get_len(exclusion_api_ip: str, timeout=None) -> Dict:
         HTTPError: If the API request returns an error status code.
 
     """
-    return get_statistics(exclusion_api_ip,timeout)['len']
+    return get_statistics(exclusion_api_ip, timeout)['interval_tree']
 
 
 @timer_decorator
@@ -366,6 +367,35 @@ def search_points(exclusion_api_ip: str,
     return exclusion_intervals
 
 
+def _handle_batch(api_endpoint: str, exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None,
+                  use_ujson=False, batch=False) -> List[bool]:
+    if batch is True:
+        batch_msg = ExclusionPointBatchMessage.create(points=exclusion_points)
+        if use_ujson is True:
+            response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/{api_endpoint}_batch',
+                                     data=ujson.dumps(batch_msg.dict()),
+                                     timeout=timeout)
+        else:
+            response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/{api_endpoint}_batch',
+                                     json=batch_msg.dict(),
+                                     timeout=timeout)
+
+    else:
+
+        if use_ujson is True:
+            response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/{api_endpoint}',
+                                     data=ujson.dumps([point.dict() for point in exclusion_points]),
+                                     timeout=timeout)
+        else:
+            response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/{api_endpoint}',
+                                     json=[point.dict() for point in exclusion_points],
+                                     timeout=timeout)
+
+    response.raise_for_status()
+
+    return json.loads(response.content)
+
+
 def exclusion_search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoint, timeout=None) -> bool:
     """Checks if a single exclusion point is excluded.
 
@@ -383,7 +413,7 @@ def exclusion_search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoin
 
 @timer_decorator
 def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None,
-                            use_ujson=False) -> List[bool]:
+                            use_ujson=False, batch=False) -> List[bool]:
     """Checks if multiple exclusion points are excluded.
 
     Args:
@@ -391,6 +421,7 @@ def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[Exclus
         exclusion_points: The exclusion points to check.
         timeout: (Optional) The timeout for the API request.
         use_ujson: (Optional) Whether to use ujson instead of the standard JSON library.
+        batch: (Optional) Whether to use the batch endpoint.
 
     Returns:
         A list of booleans indicating whether the exclusion points are excluded.
@@ -399,18 +430,87 @@ def exclusion_search_points(exclusion_api_ip: str, exclusion_points: List[Exclus
         HTTPError: If the API request returns an error status code.
 
     """
-    if use_ujson is True:
-        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/exclusion_search',
-                                 data=ujson.dumps([point.dict() for point in exclusion_points]),
-                                 timeout=timeout)
-    else:
-        response = requests.post(url=f'{exclusion_api_ip}/exclusionms/points/exclusion_search',
-                                 json=[point.dict() for point in exclusion_points],
-                                 timeout=timeout)
 
-    response.raise_for_status()
+    return _handle_batch(api_endpoint='exclusion_search', exclusion_api_ip=exclusion_api_ip,
+                         exclusion_points=exclusion_points, timeout=timeout, use_ujson=use_ujson, batch=batch)
 
-    return json.loads(response.content)
+
+def inclusion_search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoint, timeout=None) -> bool:
+    """Checks if a single exclusion point is excluded.
+
+    Args:
+        exclusion_api_ip: The IP address of the exclusion API.
+        exclusion_point: The exclusion point to check.
+        timeout: (Optional) The timeout for the API request.
+
+    Returns:
+        True if the exclusion point is excluded, False otherwise.
+
+    """
+    return inclusion_search_points(exclusion_api_ip, [exclusion_point], timeout)[0]
+
+
+@timer_decorator
+def inclusion_search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None,
+                            use_ujson=False, batch=False) -> List[bool]:
+    """Checks if multiple exclusion points are excluded.
+
+    Args:
+        exclusion_api_ip: The IP address of the exclusion API.
+        exclusion_points: The exclusion points to check.
+        timeout: (Optional) The timeout for the API request.
+        use_ujson: (Optional) Whether to use ujson instead of the standard JSON library.
+        batch: (Optional) Whether to use the batch endpoint.
+
+    Returns:
+        A list of booleans indicating whether the exclusion points are excluded.
+
+    Raises:
+        HTTPError: If the API request returns an error status code.
+
+    """
+
+    return _handle_batch(api_endpoint='inclusion_search', exclusion_api_ip=exclusion_api_ip,
+                         exclusion_points=exclusion_points, timeout=timeout, use_ujson=use_ujson, batch=batch)
+
+
+def status_search_point(exclusion_api_ip: str, exclusion_point: ExclusionPoint, timeout=None) -> bool:
+    """Checks if a single exclusion point is excluded.
+
+    Args:
+        exclusion_api_ip: The IP address of the exclusion API.
+        exclusion_point: The exclusion point to check.
+        timeout: (Optional) The timeout for the API request.
+
+    Returns:
+        True if the exclusion point is excluded, False otherwise.
+
+    """
+    return status_search_points(exclusion_api_ip, [exclusion_point], timeout)[0]
+
+
+@timer_decorator
+def status_search_points(exclusion_api_ip: str, exclusion_points: List[ExclusionPoint], timeout=None,
+                         use_ujson=False, batch=False) -> List[bool]:
+    """Checks if multiple exclusion points are excluded.
+
+    Args:
+        exclusion_api_ip: The IP address of the exclusion API.
+        exclusion_points: The exclusion points to check.
+        timeout: (Optional) The timeout for the API request.
+        use_ujson: (Optional) Whether to use ujson instead of the standard JSON library.
+        batch: (Optional) Whether to use the batch endpoint.
+
+    Returns:
+        A list of booleans indicating whether the exclusion points are excluded.
+
+    Raises:
+        HTTPError: If the API request returns an error status code.
+
+    """
+
+    return _handle_batch(api_endpoint='status_search', exclusion_api_ip=exclusion_api_ip,
+                         exclusion_points=exclusion_points, timeout=timeout, use_ujson=use_ujson, batch=batch)
 
 
 @timer_decorator
@@ -558,6 +658,22 @@ class Handler:
         """Calls equivalent apihandler function with the Handlers attributes"""
         return exclusion_search_points(self.exclusion_api_ip, exclusion_points, self.timeout)
 
+    def inclusion_search_point(self, exclusion_point: ExclusionPoint) -> bool:
+        """Calls equivalent apihandler function with the Handlers attributes"""
+        return inclusion_search_point(self.exclusion_api_ip, exclusion_point, self.timeout)
+
+    def inclusion_search_points(self, exclusion_points: List[ExclusionPoint]) -> List[bool]:
+        """Calls equivalent apihandler function with the Handlers attributes"""
+        return inclusion_search_points(self.exclusion_api_ip, exclusion_points, self.timeout)
+
+    def status_search_point(self, exclusion_point: ExclusionPoint) -> bool:
+        """Calls equivalent apihandler function with the Handlers attributes"""
+        return status_search_point(self.exclusion_api_ip, exclusion_point, self.timeout)
+
+    def status_search_points(self, exclusion_points: List[ExclusionPoint]) -> List[bool]:
+        """Calls equivalent apihandler function with the Handlers attributes"""
+        return status_search_points(self.exclusion_api_ip, exclusion_points, self.timeout)
+
     def is_connected(self) -> bool:
         """Calls equivalent apihandler function with the Handlers attributes"""
         return is_connected(self.exclusion_api_ip, self.timeout)
@@ -566,6 +682,6 @@ class Handler:
         """Calls equivalent apihandler function with the Handlers attributes"""
         return load_or_clear_exclusion_list(self.exclusion_api_ip, self.timeout)
 
-    def get_log_entries(self) -> {}:
+    def get_log_entries(self, num_entries: int = 500) -> {}:
         """Calls equivalent apihandler function with the Handlers attributes"""
-        return get_log_entries(self.exclusion_api_ip, self.timeout)
+        return get_log_entries(self.exclusion_api_ip, num_entries, self.timeout)
