@@ -478,10 +478,10 @@ class TestExclusionList(unittest.TestCase):
         self.exlist.add(interval1)
         self.exlist.add(interval2)
 
-        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=500)), IntervalStatus.EXCLUDED)
-        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=400)), IntervalStatus.NO_INTERVALS_FOUND)
-        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=800)), IntervalStatus.INCLUDED)
-        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=700)), IntervalStatus.EXCLUDED_INCLUDED)
+        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=500, charge=None, rt=None, ook0=None, intensity=None)), IntervalStatus.EXCLUDED)
+        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=400, charge=None, rt=None, ook0=None, intensity=None)), IntervalStatus.NO_INTERVALS_FOUND)
+        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=800, charge=None, rt=None, ook0=None, intensity=None)), IntervalStatus.INCLUDED)
+        self.assertEqual(self.exlist.point_status(ExclusionPoint(mass=700, charge=None, rt=None, ook0=None, intensity=None)), IntervalStatus.EXCLUDED_INCLUDED)
 
     def test_include_false(self):
         self.exlist.add(intervals[0])
