@@ -82,8 +82,8 @@ class ExclusionInterval(BaseModel):
     min_intensity: Union[float, None]
     max_intensity: Union[float, None]
     exclusion: bool = True
-    data: Any = None
-    interval_uuid: str = None
+    data: Union[Any, None] = None
+    interval_uuid: Union[str, None] = None
 
     def generate_uuid(self) -> None:
         """
@@ -437,7 +437,7 @@ class DynamicExclusionTolerance(BaseModel):
         :return: An ExclusionInterval instance with the calculated bounds.
         """
         charge = exclusion_point.charge
-        if self.charge is False:
+        if isinstance(self.charge, bool) and self.charge is False:
             charge = None
 
         min_mass, max_mass = self.calculate_mass_bounds(exclusion_point.mass)

@@ -7,6 +7,7 @@ from exclusionms.components import ExclusionInterval, ExclusionPoint
 Must have ExclusionMSAPI running!
 """
 
+EXCLUSIONMS_IP = 'http://172.29.226.111:8000'
 EXCLUSIONMS_IP = 'http://127.0.0.1:8000'
 
 interval1 = ExclusionInterval(interval_id='PEPTIDE', charge=1,
