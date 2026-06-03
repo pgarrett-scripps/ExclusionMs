@@ -9,7 +9,7 @@ authors = [
     {name = "Patrick Garrett", email = "pgarrett@scripps.edu"},
 ]
 dependencies = [
-    "intervaltree",
+    "manzanita",
     "requests",
     "pydantic",
     "ujson",
